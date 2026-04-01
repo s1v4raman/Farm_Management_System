@@ -72,3 +72,8 @@ def Login(request):
     return render(
         request, "authentication/login.html", {"error_message": error_message}
     )
+
+
+def Logout(request):
+    logout(request)
+    return redirect("authentication:login")

@@ -1,155 +1,51 @@
-{%extends 'homepage/base.html' %}
+{% extends 'homepage/base.html' %}
+{% block title %}Employees — Farm Management System{% endblock %}
+{% block page_title %}Employees{% endblock %}
 {% block content %}
-<head>
-    <style>
-          body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
-  }
-
-  h1 {
-    color: #333;
-    text-align: center;
-    background-color: antiquewhite;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-
-  th,
-  td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-  }
-
-  th {
-    background-color: #4caf50;
-    color: white;
-  }
-
-  tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-
-  .update-link,
-  .delete-link {
-    display: inline-block;
-    padding: 5px 10px;
-    text-decoration: none;
-    color: #fff;
-    border-radius: 3px;
-    margin-right: 5px;
-  }
-
-  .update-link {
-    background-color: #3498db;
-  }
-
-  .delete-link {
-    background-color: #e74c3c;
-  }
-
-  .add-button {
-    display: inline-block;
-    padding: 10px;
-    background-color: #4caf50;
-    color: white;
-    text-decoration: none;
-    border-radius: 3px;
-    margin-top: 20px;
-  }
-  
-  .update-link,
-  .delete-link {
-    display: inline-block;
-    padding: 5px 10px;
-    text-decoration: none;
-    color: #fff;
-    border-radius: 3px;
-    margin-right: 5px;
-  }
-
-  .update-link {
-    background-color: #3498db;
-  }
-
-  .delete-link {
-    background-color: #e74c3c;
-  }
-
-  .add-button {
-    display: inline-block;
-    padding: 10px;
-    background-color: #4caf50;
-    color: white;
-    text-decoration: none;
-    border-radius: 3px;
-    margin-top: 20px;
-  }
-  
-  .expenses-link {
-    display: inline-block;
-    padding: 5px 10px;
-    margin: 5px;
-    text-align: center;
-    text-decoration: none;
-    border: 2px solid #3498db;
-    color: #3498db;
-    border-radius: 5px;
-    transition: background-color 0.3s, color 0.3s;
-  }
-  
-  .expenses-link:hover {
-    background-color: #3498db;
-    color: #fff;
-  }
-    </style>
-</head>
-<body>
-    <h1>Employees Details</h1>
-    {% if employees %}
-    <table>
-        <thead>
-            <tr>
-                <th>Employees ID</th>
-                <th>Name</th>
-                <th>Country code</th>
-                <th>Phone number</th>
-                <th>Position</th>
-                <th>Salary</th>
-                <th>Performance</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for employee in employees %}
-            <tr>
-                <td>{{ employee.Eid }}</td>
-                <td>{{ employee.Name }}</td>
-                <td>{{ employee.Country_code }}</td>
-                <td>{{ employee.Phone_number }}</td>
-                <td>{{ employee.Position }}</td>
-                <td>{{ employee.Salary }}</td>
-                <td>{{ employee.Performance }}</td>
-
-                <td><a href="{% url 'homepage:update-employees' Eid=employee.Eid %}" class="update-link">Update</a>
-                  <a href="{% url 'homepage:delete-employees' Eid=employee.Eid %}"class="delete-link">Delete</a> </td>
-
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    {% else %}
-    <p class="no-employees">No employees found. Please add employees</p>
-    {% endif %}
-
-    <a href="{% url 'homepage:add-employees' %}" class="add-button">Add an employee</a>
-</body>
-{%endblock%}
+<div class="table-container">
+  <div class="table-header">
+    <h2><i class='bx bx-group'></i> Employee Records</h2>
+    <a href="{% url 'homepage:add-employees' %}" class="btn btn-primary"><i class='bx bx-plus'></i> Add Employee</a>
+  </div>
+  {% if employees %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Country Code</th>
+        <th>Phone Number</th>
+        <th>Position</th>
+        <th>Salary</th>
+        <th>Performance</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for employee in employees %}
+      <tr>
+        <td>{{ employee.Eid }}</td>
+        <td>{{ employee.Name }}</td>
+        <td>{{ employee.Country_code }}</td>
+        <td>{{ employee.Phone_number }}</td>
+        <td>{{ employee.Position }}</td>
+        <td>{{ employee.Salary }}</td>
+        <td>{{ employee.Performance }}</td>
+        <td>
+          <div class="action-btns">
+            <a href="{% url 'homepage:update-employees' Eid=employee.Eid %}" class="btn btn-info btn-sm"><i class='bx bx-edit'></i> Edit</a>
+            <a href="{% url 'homepage:delete-employees' Eid=employee.Eid %}" class="btn btn-danger btn-sm"><i class='bx bx-trash'></i></a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="no-data">
+    <i class='bx bx-group'></i>
+    <p>No employees found. Add your first employee to get started.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

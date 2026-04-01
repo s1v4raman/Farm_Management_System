@@ -1,77 +1,139 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Farm Management System - Dashboard</title>
-
-  <meta http-equiv=”X-UA-Compatible” content=”IE=edge”>
-
-  <meta name=”viewport” content=”width=device-width, initial-scale=1.0″>
-  <link rel='stylesheet' href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css'>
-<style>
-    header {
-        background-color: green;
-        padding: 1px;
-        text-align: center;
-      }
-      
-      h2 {
-        color: white; /* Set the text color to white for better visibility */
-        font-size: 28px; /* Adjust the font size as needed */
-        font-weight: bold; /* Add bold styling for emphasis */
-      }
-
-      .left-align {
-        text-align: right;
-        list-style-type:none;
-      }
-  
-      .left-align a {
-        display: block;
-        padding: 10px;
-        text-decoration: none;
-        color: white;
-      }
-  
-      .left-align a i {
-        margin-right: 10px;
-      }
-
-      footer {
-        background-color: #333;
-        color: #FFF;
-        padding: 10px;
-        text-align: center;
-      }
-      
-      footer p {
-        font-size: 12px;
-        
-      }
-</style>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Farm Management System{% endblock %}</title>
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
 <body>
-  <header>
-    
-    <h2>WELCOME BACK TO YOUR FARM MANAGER</h2>
-    <li class= "left-align">
-      <a href="{%url 'homepage:mainpage' %}">
-        <i class='bx bx-grid-alt'></i>
-        <span class="links_name">Dashboard</span>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="logo-details">
+      <i class='bx bxs-leaf logo-icon'></i>
+      <span class="logo_name">FarmManager</span>
+      <i class='bx bx-menu' id="btn"></i>
+    </div>
+
+    <ul class="nav-list">
+      <li>
+        <a href="{% url 'homepage:mainpage' %}">
+          <i class='bx bx-grid-alt'></i>
+          <span class="links_name">Dashboard</span>
+        </a>
+        <span class="tooltip">Dashboard</span>
+      </li>
+      <li>
+        <a href="{% url 'homepage:show-employees' %}">
+          <i class='bx bx-group'></i>
+          <span class="links_name">Employees</span>
+        </a>
+        <span class="tooltip">Employees</span>
+      </li>
+      <li>
+        <a href="{% url 'homepage:show-crops' %}">
+          <i class='bx bxs-leaf'></i>
+          <span class="links_name">Crops</span>
+        </a>
+        <span class="tooltip">Crops</span>
+      </li>
+      <li>
+        <a href="{% url 'homepage:show-livestock' %}">
+          <i class='bx bxs-dog'></i>
+          <span class="links_name">Livestock</span>
+        </a>
+        <span class="tooltip">Livestock</span>
+      </li>
+      <li>
+        <a href="{% url 'homepage:show-machinery' %}">
+          <i class='bx bxs-car-mechanic'></i>
+          <span class="links_name">Machinery</span>
+        </a>
+        <span class="tooltip">Machinery</span>
+      </li>
+      <li>
+        <a href="{% url 'homepage:select-yearmonth' %}">
+          <i class='bx bx-droplet'></i>
+          <span class="links_name">Milk Production</span>
+        </a>
+        <span class="tooltip">Milk Production</span>
+      </li>
+      <li>
+        <a href="{% url 'homepage:select-yearandmonth' %}">
+          <i class='bx bx-egg'></i>
+          <span class="links_name">Egg Production</span>
+        </a>
+        <span class="tooltip">Egg Production</span>
+      </li>
+      <li>
+        <a href="{% url 'homepage:help' %}">
+          <i class='bx bx-help-circle'></i>
+          <span class="links_name">Help</span>
+        </a>
+        <span class="tooltip">Help</span>
+      </li>
+    </ul>
+
+    <div class="sidebar-bottom">
+      <a href="{% url 'authentication:logout' %}">
+        <i class='bx bx-log-out'></i>
+        <span class="links_name">Logout</span>
       </a>
-    </li>
-    
-  </header>
-  {%block content%}
+    </div>
+  </div>
 
-  
-  {% endblock %}
-  
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <footer>
-    <h5>WELCOME to the farm manager. Here you can monitor and manage various aspects of your farm.</h5>
-    <p>&copy; 2023 Farm Management System created by Denis Nganga. All rights reserved.</p>
-  </footer>
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="page-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="mobile-toggle" id="mobileToggle">
+          <i class='bx bx-menu'></i>
+        </button>
+        <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+      </div>
+      <div class="user-info">
+        <i class='bx bxs-user-circle'></i>
+        <span>{{ user.username }}</span>
+      </div>
+    </div>
+
+    <div class="page-body fade-in">
+      {% block content %}
+      {% endblock %}
+    </div>
+
+    <footer class="main-footer">
+      <p>&copy; 2025 Farm Management System. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <!-- Sidebar Toggle Script -->
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const btn = document.getElementById('btn');
+    const overlay = document.getElementById('sidebarOverlay');
+    const mobileToggle = document.getElementById('mobileToggle');
+
+    btn.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+
+    if (mobileToggle) {
+      mobileToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+      });
+    }
+  </script>
 </body>
 </html>

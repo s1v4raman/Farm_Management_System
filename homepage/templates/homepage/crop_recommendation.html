@@ -1,0 +1,204 @@
+{% extends 'homepage/home.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* Crop Recommender Layout */
+  .crop-dashboard {
+    padding: 60px 32px 80px;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 5;
+  }
+
+  .crop-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .crop-header h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+  }
+  .crop-header p {
+    font-size: 16px;
+    color: #64748b;
+    margin-top: 8px;
+  }
+
+  /* Main Form Card */
+  .recommender-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    padding: 40px;
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+  }
+  .form-group select {
+    width: 100%;
+    padding: 14px 16px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    color: #0f172a;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+  }
+  .form-group select:focus {
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: #10b981;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+  }
+  .submit-btn:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  }
+
+  /* Result Box */
+  .result-box {
+    margin-top: 30px;
+    padding: 24px;
+    background: #ecfdf5;
+    border: 1px dashed #34d399;
+    border-radius: 16px;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-title {
+    font-size: 14px;
+    color: #059669;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .result-items {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .crop-pill {
+    background: #ffffff;
+    border: 2px solid #10b981;
+    color: #10b981;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 18px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  }
+
+</style>
+
+<div class="crop-dashboard">
+  <div class="crop-header">
+    <h1>Smart Crop Recommender 🌱</h1>
+    <p>Find the best crop to maximize your yield based on soil, season, and water availability.</p>
+  </div>
+
+  <div class="recommender-card">
+    <form method="POST" action="{% url 'homepage:crop-recommendation' %}">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label>Soil Type</label>
+        <select name="soil" required>
+          <option value="" disabled selected>Select Soil Parameter</option>
+          <option value="Red">Red Soil</option>
+          <option value="Black">Black Soil</option>
+          <option value="Alluvial">Alluvial Soil</option>
+          <option value="Loamy">Loamy Soil</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Season</label>
+        <select name="season" required>
+          <option value="" disabled selected>Select Current Season</option>
+          <option value="Summer">Summer (Zaid)</option>
+          <option value="Winter">Winter (Rabi)</option>
+          <option value="Monsoon">Monsoon (Kharif)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Water Availability</label>
+        <select name="water" required>
+          <option value="" disabled selected>Select Water Supply</option>
+          <option value="High">High (Abundant Irrigation)</option>
+          <option value="Medium">Medium (Moderate Rain/Irrigation)</option>
+          <option value="Low">Low (Dry/Rainfed)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="submit-btn">
+        <i class='bx bx-brain'></i> Get Recommendations
+      </button>
+    </form>
+
+    {% if submitted %}
+    <div class="result-box">
+      <div class="result-title"><i class='bx bx-check-circle'></i> Recommended Crops</div>
+      <div class="result-items">
+        {% for crop in recommendations %}
+          <div class="crop-pill">{{ crop }}</div>
+        {% empty %}
+          <div class="crop-pill">General Millets</div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

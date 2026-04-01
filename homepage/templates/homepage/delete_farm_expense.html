@@ -1,0 +1,106 @@
+{% extends 'homepage/home.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  .delete-container {
+    padding: 80px 32px;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 5;
+  }
+  .delete-card {
+    background: #ffffff;
+    border: 1px solid #fee2e2;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.1);
+  }
+  .warning-icon {
+    font-size: 64px;
+    color: #ef4444;
+    margin-bottom: 20px;
+  }
+  .delete-card h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 15px;
+  }
+  .delete-card p {
+    color: #64748b;
+    font-size: 15px;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+  .expense-details {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    text-align: left;
+  }
+  .expense-details strong { color: #0f172a; }
+
+  .action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+  }
+  .btn-cancel {
+    padding: 12px 24px;
+    background: #f1f5f9;
+    color: #475569;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover { background: #e2e8f0; color: #0f172a; }
+  
+  .btn-delete {
+    padding: 12px 24px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    transition: all 0.2s;
+  }
+  .btn-delete:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  }
+
+</style>
+
+<div class="delete-container">
+  <div class="delete-card">
+    <i class='bx bx-error-circle warning-icon'></i>
+    <h2>Confirm Deletion</h2>
+    <p>Are you sure you want to delete this farm expense record? This action cannot be undone.</p>
+    
+    <div class="expense-details">
+      <div><strong>Date:</strong> {{ expense.Expense_date }}</div>
+      <div><strong>Crop/Season:</strong> {{ expense.Season_or_crop }}</div>
+      <div style="margin-top:10px;"><strong>Total Investment:</strong> ₹{{ expense.Total_investment }}</div>
+      <div><strong>Profit:</strong> ₹{{ expense.Profit }}</div>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="action-buttons">
+        <a href="{% url 'homepage:show-farm-expenses' %}" class="btn-cancel">Cancel, Keep it</a>
+        <button type="submit" class="btn-delete">Yes, Delete Record</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

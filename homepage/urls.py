@@ -54,14 +54,53 @@ from .views import (
     Delete_egg_production_by_month,
     Update_egg_production_by_month,
 
-    Help
-    
+    Help,
+    crop_disease_analysis,
+    daily_climate,
+    api_weather,
+    crop_recommendation,
+    market_prices,
+    api_historical_prices
+)
+
+from homepage.farm_expense_views import (
+    show_farm_expenses,
+    add_farm_expense,
+    update_farm_expense,
+    delete_farm_expense
+)
+
+from homepage.water_views import (
+    water_dashboard,
+    add_water_schedule,
+    start_watering,
+    mark_completed,
+    delete_water_schedule
 )
 
 app_name = "homepage"
 
 urlpatterns = [
     path("mainpage/", Mainpage, name="mainpage"),
+    path("crop-disease-analysis/", crop_disease_analysis, name="crop-disease-analysis"),
+    path("daily-climate/", daily_climate, name="daily-climate"),
+    path("api/weather/", api_weather, name="api-weather"),
+    path("crop-recommendation/", crop_recommendation, name="crop-recommendation"),
+    path("market-prices/", market_prices, name="market-prices"),
+    path("api/historical-prices/", api_historical_prices, name="api-historical-prices"),
+    
+    # Farm Expenses
+    path("show-farm-expenses/", show_farm_expenses, name="show-farm-expenses"),
+    path("add-farm-expense/", add_farm_expense, name="add-farm-expense"),
+    path("update-farm-expense/<int:id>/", update_farm_expense, name="update-farm-expense"),
+    path("delete-farm-expense/<int:id>/", delete_farm_expense, name="delete-farm-expense"),
+
+    # Water Management
+    path("water-dashboard/", water_dashboard, name="water-dashboard"),
+    path("add-water-schedule/", add_water_schedule, name="add-water-schedule"),
+    path("start-watering/<int:id>/", start_watering, name="start-watering"),
+    path("mark-completed/<int:id>/", mark_completed, name="mark-completed"),
+    path("delete-water-schedule/<int:id>/", delete_water_schedule, name="delete-water-schedule"),
 
     path("show_employees/", Show_employees, name="show-employees"),
 

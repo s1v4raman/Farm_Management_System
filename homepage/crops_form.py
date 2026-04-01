@@ -1,5 +1,5 @@
-from django import forms
-from .models import Crops,Crop_expenses,Crop_sales,Crop_operations
+from django import forms # type: ignore
+from .models import Crops,Crop_expenses,Crop_sales,Crop_operations # type: ignore
 
 
 class CropsForm(forms.ModelForm):

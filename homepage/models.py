@@ -1,7 +1,7 @@
-from django.db import models
-from django.contrib.auth.models import User
+from django.db import models # type: ignore
+from django.contrib.auth.models import User # type: ignore
 from decimal import Decimal
-from django.core.validators import MaxValueValidator,MinValueValidator
+from django.core.validators import MaxValueValidator,MinValueValidator # type: ignore
 
 # Create your models here.
 
@@ -215,11 +215,47 @@ class Eggs_production(models.Model):
         morning_feeds=float(self.Morning_feeds)
         evening_feeds=float(self.Evening_feeds)
 
-        self.Total_feeds=Decimal(morning_feeds+evening_feeds)
+class FarmExpense(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    
+    Expense_date = models.DateField(help_text='m/d/y')
+    Season_or_crop = models.CharField(max_length=50, help_text='e.g., Wheat 2026')
+    Seed_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    Fertilizer_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    Labor_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    Other_costs = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    
+    Crop_sale = models.DecimalField(max_digits=12, decimal_places=2, default=0, help_text="Income from crop sale")
+    
+    Total_investment = models.DecimalField(max_digits=12, decimal_places=2, default=0, editable=False)
+    Profit = models.DecimalField(max_digits=12, decimal_places=2, default=0, editable=False)
+
+    class Meta:
+        db_table = "FarmExpense"
+
+    def save(self, *args, **kwargs):
+        # Calculate total investment
+        self.Total_investment = Decimal(float(self.Seed_cost) + float(self.Fertilizer_cost) + float(self.Labor_cost) + float(self.Other_costs))
+        
+        # Calculate profit
+        self.Profit = Decimal(float(self.Crop_sale) - float(self.Total_investment))
         
         super().save(*args, **kwargs)
 
+class WaterSchedule(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    
+    crop = models.CharField(max_length=100, help_text='Select crop type for water estimation')
+    field_area = models.DecimalField(max_digits=8, decimal_places=2, help_text='Area in Acres')
+    water_source_flow_rate = models.DecimalField(max_digits=10, decimal_places=2, help_text='Pump flow rate in Liters per Minute (LPM)')
+    mobile_number = models.CharField(max_length=15, default="", help_text='Phone number to send SMS alert to (e.g. +919876543210)')
 
-
-
-
+    
+    calculated_time_minutes = models.IntegerField(default=0, editable=False)
+    
+    status = models.CharField(max_length=20, default='Pending') # Pending, Flowing, Completed
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        db_table = "WaterSchedule"

@@ -1,0 +1,37 @@
+# Query: plt.
+# ContextLines: 1
+
+14 results - 1 file
+
+My-Farm-Project\Farm_Management_System\homepage\views.py:
+  486      # Create a bar graph for Total Consumption vs Day
+  487:    # plt.figure(figsize=(12, 6))
+  488:     #plt.bar(days, total_consumption, color='green')
+  489:     #plt.title('Total Consumption vs Day')
+  490:     #plt.xlabel('Day')
+  491:     #plt.ylabel('Total Consumption')
+  492      
+
+  494      image_stream_consumption = BytesIO()
+  495:     #plt.savefig(image_stream_consumption, format='png')
+  496      image_stream_consumption.seek(0)
+
+  499      # Close the plot to free up resources
+  500:     #plt.close()
+  501  
+
+  505      # Create a bar graph for Milk Production vs Day
+  506:     #plt.figure(figsize=(12, 6))
+  507:     #plt.bar(days, total_production, color='blue')
+  508:     #plt.title('Milk Production vs Day')
+  509:     #plt.xlabel('Day')
+  510:     #plt.ylabel('Milk Production')
+  511  
+
+  513      image_stream_production = BytesIO()
+  514:     #plt.savefig(image_stream_production, format='png')
+  515      image_stream_production.seek(0)
+
+  518      # Close the plot to free up resources
+  519:     #plt.close()
+  520  

@@ -25,7 +25,8 @@ SECRET_KEY = "django-insecure-dv7l783ph!d@mp=4a$b2#u84%afkd8q)#jj+n-y14!*6g=idba
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://farm-management-system-47wm.onrender.com', 'localhost']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+
 
 
 

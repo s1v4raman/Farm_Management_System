@@ -1,0 +1,138 @@
+{% extends 'homepage/home.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  .form-container {
+    padding: 60px 32px;
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 5;
+  }
+  .form-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  }
+  .form-card h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 15px;
+  }
+  .form-group {
+    margin-bottom: 24px;
+  }
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #475569;
+    font-size: 14px;
+  }
+  .form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    font-size: 15px;
+    transition: all 0.3s ease;
+  }
+  .form-control:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+  }
+  .form-help {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 6px;
+    display: block;
+  }
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+    transition: all 0.3s ease;
+    margin-top: 10px;
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+  .back-link:hover { color: #0f172a; }
+</style>
+
+<div class="form-container">
+  <a href="{% url 'homepage:water-dashboard' %}" class="back-link">
+    <i class='bx bx-arrow-back'></i> Back to Dashboard
+  </a>
+
+  <div class="form-card">
+    <h2><i class='bx bx-droplet' style="color: #0ea5e9;"></i> Calculate New Schedule</h2>
+    <form method="POST">
+      {% csrf_token %}
+      
+      <div class="form-group">
+        <label class="form-label">Crop Type</label>
+        {{ form.crop }}
+        <span class="form-help">Select the crop to calculate specific water needs.</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Field Area (Acres)</label>
+        {{ form.field_area }}
+        <span class="form-help">The total area of the land segment being watered.</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Water Source Flow Rate (Liters per Minute)</label>
+        {{ form.water_source_flow_rate }}
+        <span class="form-help">Estimated flow rate of your pump (e.g. 500 LPM for a medium well).</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Admin Phone Number (For SMS Alert)</label>
+        {{ form.mobile_number }}
+        <span class="form-help">Enter your mobile number with country code (e.g. +919876543210) to receive a real-time text message when watering is complete. Note: Free API limited to 1 message daily per IP.</span>
+      </div>
+
+      <button type="submit" class="btn-submit">Calculate Time & Validate</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Add class to generated fields automatically
+  const inputs = document.querySelectorAll('input, select');
+  inputs.forEach(el => {
+    if (el.type !== 'hidden') {
+      el.classList.add('form-control');
+    }
+  });
+</script>
+{% endblock %}

@@ -1,14 +1,185 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404  # type: ignore
+from io import BytesIO  # type: ignore
+import base64  # type: ignore
+try:
+    import matplotlib  # type: ignore
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt  # type: ignore
+    HAS_MATPLOTLIB = True
+except ImportError:
+    HAS_MATPLOTLIB = False
 
+
+from .utils.weather_api import get_dashboard_weather, _fetch_weather_from_coords  # type: ignore
+from .utils.crop_recommender import recommend_crop  # type: ignore
+from .utils.market_api import get_daily_market_prices, get_historical_prices  # type: ignore
+import requests  # type: ignore
+from django.http import JsonResponse  # type: ignore
+from django.views.decorators.csrf import csrf_exempt  # type: ignore
 
 # Create your views here.
+from django.db.models.functions import TruncMonth
+from django.db.models import Sum
+from datetime import datetime, timedelta
+from .models import FarmExpense
+
 def Mainpage(request):
-    return render(request, "homepage/home.html")
+    weather_info = get_dashboard_weather()
+    
+    # Calculate expense data for chart (last 6 months)
+    today = datetime.now().date()
+    six_months_ago = today - timedelta(days=180)
+    
+    import json
+    
+    # Group by month
+    if request.user.is_authenticated:
+        expenses_query = FarmExpense.objects.filter(
+            user=request.user, 
+            Expense_date__gte=six_months_ago
+        ).annotate(
+            month=TruncMonth('Expense_date')
+        ).values('month').annotate(
+            total_sales=Sum('Crop_sale'),
+            total_investment=Sum('Total_investment')
+        ).order_by('month')
+    else:
+        expenses_query = []
+
+    # Prepare data arrays for the chart
+    expense_labels = []
+    crop_sales_data = []
+    expenses_data = []
+    
+    # Fill in grouped data
+    for entry in expenses_query:
+        if entry['month']:
+            month_label = entry['month'].strftime('%b %Y') # 'Jan 2026'
+            expense_labels.append(month_label)
+            crop_sales_data.append(float(entry['total_sales'] or 0))
+            expenses_data.append(float(entry['total_investment'] or 0))
+        
+    # If no data, provide fallbacks
+    if not expense_labels:
+        expense_labels = ['No Data']
+        crop_sales_data = [0]
+        expenses_data = [0]
+
+    context = {
+        "weather": weather_info,
+        "expense_labels": json.dumps(expense_labels),
+        "crop_sales_data": json.dumps(crop_sales_data),
+        "expenses_data": json.dumps(expenses_data),
+    }
+
+    return render(request, "homepage/home.html", context)
+
+def api_weather(request):
+    """API endpoint to fetch weather for specific lat/lon from frontend Geolocation."""
+    lat = request.GET.get('lat')
+    lon = request.GET.get('lon')
+    
+    if lat and lon:
+        try:
+            # Try to reverse geocode the coordinates to get the city name
+            city_name = "Your Location"
+            geo_url = f"https://api.bigdatacloud.net/data/reverse-geocode-client?latitude={lat}&longitude={lon}&localityLanguage=en"
+            geo_res = requests.get(geo_url, timeout=5)
+            if geo_res.status_code == 200:
+                geo_data = geo_res.json()
+                # Prefer locality, then city, then principal subdivision (state)
+                city_name = geo_data.get('locality') or geo_data.get('city') or geo_data.get('principalSubdivision') or "Your Location"
+            
+            weather = _fetch_weather_from_coords(lat, lon, city_name)
+            if weather:
+                return JsonResponse({'success': True, 'weather': weather})
+        except Exception as e:
+            print(f"Error in api_weather view: {e}")
+            
+    return JsonResponse({'success': False, 'error': 'Could not fetch weather data'})
+
+# --- New Modules --- #
+
+@csrf_exempt
+def crop_recommendation(request):
+    """View for the Crop Recommendation Module."""
+    recommendations = None
+    if request.method == "POST":
+        soil = request.POST.get("soil")
+        season = request.POST.get("season")
+        water = request.POST.get("water")
+        
+        if soil and season and water:
+            recommendations = recommend_crop(soil, season, water)
+            
+    return render(request, "homepage/crop_recommendation.html", {
+        "recommendations": recommendations,
+        "submitted": request.method == "POST"
+    })
+
+def market_prices(request):
+    """View for the Market Price Analysis Dashboard."""
+    prices = get_daily_market_prices()
+    
+    # Check differences to assign trends
+    for p in prices:
+        diff = float(p.get("difference", 0))
+        p["is_increase"] = diff > 0
+        p["is_neutral"] = diff == 0
+        
+    return render(request, "homepage/market_prices.html", {"prices": prices})
+
+def api_historical_prices(request):
+    """API Endpoint to fetch 7-day historical price data for Chart.js."""
+    crop = request.GET.get("crop")
+    if crop:
+        data = get_historical_prices(crop)
+        return JsonResponse({"success": True, "data": data})
+    return JsonResponse({"success": False, "error": "No crop provided"})
+
+
+from .utils.weather_api import get_realtime_weather, get_realtime_weather_for_district, INDIA_REGIONS  # type: ignore
+
+def daily_climate(request):
+    """
+    Renders the Daily Climate Tracker dashboard.
+    Shows search UI if Country/State/District not selected, else shows real-time weather data.
+    """
+    country = request.GET.get('country')
+    state = request.GET.get('state')
+    district = request.GET.get('district')
+    
+    states_list = sorted(list(INDIA_REGIONS.keys()))
+    districts_list = []
+    
+    if state and state in INDIA_REGIONS:
+        districts_list = sorted(list(INDIA_REGIONS[state].keys()))
+    
+    if country == 'India' and state in INDIA_REGIONS and district in districts_list:
+        weather_info = get_realtime_weather_for_district(state, district)
+        return render(request, 'homepage/daily_climate.html', {
+            'weather_data': weather_info,
+            'country': country,
+            'state': state,
+            'district': district,
+            'states_list': states_list,
+            'districts_list': districts_list,
+            'show_results': True
+        })
+    else:
+        return render(request, 'homepage/daily_climate.html', {
+            'country': country,
+            'state': state,
+            'district': district,
+            'states_list': states_list,
+            'districts_list': districts_list,
+            'show_results': False
+        })
 
 
 # views for the employees
-from .employees_form import EmployeesForm
-from .models import Employees
+from .employees_form import EmployeesForm  # type: ignore
+from .models import Employees  # type: ignore
 
 
 def Show_employees(request):
@@ -44,18 +215,19 @@ def Delete_employees(request, Eid):
 
 def Update_employees(request, Eid):
     employees = Employees.objects.get(Eid=Eid)
-    form = EmployeesForm(request.POST, instance=employees)
-
-    if form.is_valid():
-        form.save()
-        return redirect("homepage:show-employees")
-
-    return render(request, "homepage/updateemployees.html", {"employees": employees})
+    if request.method == 'POST':
+        form = EmployeesForm(request.POST, instance=employees)
+        if form.is_valid():
+            form.save()
+            return redirect("homepage:show-employees")
+    else:
+        form = EmployeesForm(instance=employees)
+    return render(request, "homepage/updateemployees.html", {"form": form, "employees": employees})
 
 
 # views for crops
-from .models import Crops,Crop_expenses,Crop_sales,Crop_operations
-from .crops_form import CropsForm,Crop_expensesForm,Crop_salesForm,Crop_operationsForm
+from .models import Crops,Crop_expenses,Crop_sales,Crop_operations  # type: ignore
+from .crops_form import CropsForm,Crop_expensesForm,Crop_salesForm,Crop_operationsForm  # type: ignore
 
 
 def Show_crops(request):
@@ -81,16 +253,14 @@ def Add_crops(request):
 
 def Update_crops(request, Cid):
     crops = Crops.objects.get(Cid=Cid)
-    form = CropsForm(request.POST, instance=crops)
-
-    if form.is_valid():
-        form.save()
-        return redirect("homepage:show-crops")
-    
+    if request.method == 'POST':
+        form = CropsForm(request.POST, instance=crops)
+        if form.is_valid():
+            form.save()
+            return redirect("homepage:show-crops")
     else:
-        print(form.errors)
-
-    return render(request, "homepage/updatecrops.html", {"crops": crops})
+        form = CropsForm(instance=crops)
+    return render(request, "homepage/updatecrops.html", {"form": form, "crops": crops})
 
 def Delete_crops (request,Cid):
     crops=Crops.objects.get(Cid=Cid)
@@ -125,15 +295,14 @@ def Add_crop_expenses(request,Cid):
 def Update_crop_expenses(request,Cid,Expense_date):
     crops=get_object_or_404(Crops,Cid=Cid)
     crop_expenses=get_object_or_404(Crop_expenses,crops__Cid=Cid,Expense_date=Expense_date)
-    form=Crop_expensesForm(request.POST,instance=crop_expenses)
-
-    if form.is_valid():
-        form.save()
-        return redirect('homepage:show-cropexpenses',Cid=crop_expenses.crops.Cid)
+    if request.method == 'POST':
+        form=Crop_expensesForm(request.POST,instance=crop_expenses)
+        if form.is_valid():
+            form.save()
+            return redirect('homepage:show-cropexpenses',Cid=crop_expenses.crops.Cid)
     else:
-        print(form.errors)
-
-    return render(request,'homepage/updatecropexpenses.html',{'crops':crops,'crop_expenses':crop_expenses})
+        form=Crop_expensesForm(instance=crop_expenses)
+    return render(request,'homepage/updatecropexpenses.html',{'form':form,'crops':crops,'crop_expenses':crop_expenses})
 
 def Delete_crop_expenses(request,Cid,Expense_date):
     crop_expenses=get_object_or_404(Crop_expenses, crops__Cid=Cid,Expense_date=Expense_date)
@@ -177,17 +346,14 @@ def Delete_crop_sales(request,Cid,Sale_date):
 def Update_crop_sales(request,Cid,Sale_date):
     crops= get_object_or_404(Crops,Cid=Cid)
     crop_sales=get_object_or_404(Crop_sales,crops__Cid=Cid,Sale_date=Sale_date)
-    form=Crop_salesForm(request.POST,instance=crop_sales)
-
-    if form.is_valid():
-        form.save()
-
-        return redirect('homepage:show-cropsales', Cid=crop_sales.crops.Cid)
-    
+    if request.method == 'POST':
+        form=Crop_salesForm(request.POST,instance=crop_sales)
+        if form.is_valid():
+            form.save()
+            return redirect('homepage:show-cropsales', Cid=crop_sales.crops.Cid)
     else:
-        print(form.errors)
-
-    return render(request,'homepage/updatecropsales.html',{'crops':crops,'crop_sales':crop_sales})
+        form=Crop_salesForm(instance=crop_sales)
+    return render(request,'homepage/updatecropsales.html',{'form':form,'crops':crops,'crop_sales':crop_sales})
 
 def Show_crop_operations(request,Cid):
     crops=get_object_or_404(Crops,Cid=Cid)
@@ -221,22 +387,22 @@ def Delete_crop_operations(request,Cid,Operation_date):
 def Update_crop_operations(request,Cid,Operation_date):
     crops= get_object_or_404(Crops,Cid=Cid)
     crop_operations=get_object_or_404(Crop_operations,crops__Cid=Cid,Operation_date=Operation_date)
-    form  = Crop_operationsForm(request.POST,instance=crop_operations)
-
-    if form.is_valid():
-        form.save()
-
-        return redirect('homepage:show-cropoperations',Cid=crop_operations.crops.Cid)
-    
-    return render(request,'homepage/updatecropoperations.html',{'crops':crops,'crop_operations':crop_operations})
+    if request.method == 'POST':
+        form = Crop_operationsForm(request.POST,instance=crop_operations)
+        if form.is_valid():
+            form.save()
+            return redirect('homepage:show-cropoperations',Cid=crop_operations.crops.Cid)
+    else:
+        form = Crop_operationsForm(instance=crop_operations)
+    return render(request,'homepage/updatecropoperations.html',{'form':form,'crops':crops,'crop_operations':crop_operations})
     
     
     
 
 #views for the Machinery
 
-from .models import Machinery,Machinery_activities,Machinery_maintenance
-from .machinery_form import MachineryForm,Machinery_activitesForm,Machinery_maintenanceForm
+from .models import Machinery,Machinery_activities,Machinery_maintenance  # type: ignore
+from .machinery_form import MachineryForm,Machinery_activitesForm,Machinery_maintenanceForm  # type: ignore
 
 def Show_machinery(request):
     machinery = Machinery.objects.filter(user=request.user)
@@ -270,16 +436,14 @@ def Delete_machinery(request,Number_plate):
 
 def Update_machinery(request,Number_plate):
     machinery=Machinery.objects.get(Number_plate=Number_plate)
-    form = MachineryForm(request.POST, instance=machinery)
-
-    if form.is_valid():
-        form.save()
-        return redirect("homepage:show-machinery")
-    
+    if request.method == 'POST':
+        form = MachineryForm(request.POST, instance=machinery)
+        if form.is_valid():
+            form.save()
+            return redirect("homepage:show-machinery")
     else:
-        print(form.errors)
-    
-    return render(request, "homepage/updatemachinery.html", {'machinery':machinery})
+        form = MachineryForm(instance=machinery)
+    return render(request, "homepage/updatemachinery.html", {'form':form,'machinery':machinery})
 
 
 def Show_machinery_activities(request,Number_plate):
@@ -315,13 +479,14 @@ def Delete_machinery_activity(request,Number_plate,Activity_date):
 def Update_machinery_activities(request,Number_plate,Activity_date):
     machinery=get_object_or_404(Machinery,Number_plate=Number_plate)
     machinery_activities=get_object_or_404(Machinery_activities,machinery__Number_plate=Number_plate,Activity_date=Activity_date)
-    form=Machinery_activitesForm(request.POST,instance=machinery_activities)
-
-    if form.is_valid():
-        form.save()
-        return redirect('homepage:show-machineryactivities',Number_plate=machinery_activities.machinery.Number_plate)
-    
-    return render(request,'homepage/updatemachineryactivities.html',{'machinery':machinery,'machinery_activities':machinery_activities})
+    if request.method == 'POST':
+        form=Machinery_activitesForm(request.POST,instance=machinery_activities)
+        if form.is_valid():
+            form.save()
+            return redirect('homepage:show-machineryactivities',Number_plate=machinery_activities.machinery.Number_plate)
+    else:
+        form=Machinery_activitesForm(instance=machinery_activities)
+    return render(request,'homepage/updatemachineryactivities.html',{'form':form,'machinery':machinery,'machinery_activities':machinery_activities})
 
 def Show_machinery_maintenance(request,Number_plate):
     machinery=get_object_or_404(Machinery,Number_plate=Number_plate)
@@ -355,20 +520,21 @@ def Delete_machinery_maintenance(request,Number_plate,Date):
 def Update_machinery_maintenance(request,Number_plate,Date):
     machinery=get_object_or_404(Machinery,Number_plate=Number_plate)
     machinery_maintenance=get_object_or_404(Machinery_maintenance,machinery__Number_plate=Number_plate,Date=Date)
-    form=Machinery_maintenanceForm(request.POST,instance=machinery_maintenance)
-
-    if form.is_valid():
-        form.save()
-        return redirect('homepage:show-machinerymaintenance',Number_plate=machinery_maintenance.machinery.Number_plate)
-    
-    return render(request,'homepage/updatemachinerymaintenance.html',{'machinery':machinery,'machinery_maintenance':machinery_maintenance})
+    if request.method == 'POST':
+        form=Machinery_maintenanceForm(request.POST,instance=machinery_maintenance)
+        if form.is_valid():
+            form.save()
+            return redirect('homepage:show-machinerymaintenance',Number_plate=machinery_maintenance.machinery.Number_plate)
+    else:
+        form=Machinery_maintenanceForm(instance=machinery_maintenance)
+    return render(request,'homepage/updatemachinerymaintenance.html',{'form':form,'machinery':machinery,'machinery_maintenance':machinery_maintenance})
     
 
 
 #view function of the livestock section
-from .livestock_form import LivestockForm,Livestock_productionForm,Milk_productionForm,Egg_productionForm
-from .models import Livestock,Livestock_production,Milk_production,Eggs_production
-from django.shortcuts import render, get_object_or_404
+from .livestock_form import LivestockForm,Livestock_productionForm,Milk_productionForm,Egg_productionForm  # type: ignore
+from .models import Livestock,Livestock_production,Milk_production,Eggs_production  # type: ignore
+from django.shortcuts import render, get_object_or_404  # type: ignore
 
 def Show_livestock(request):
     livestock = Livestock.objects.filter(user=request.user)
@@ -394,16 +560,14 @@ def Add_livestock(request):
 
 def Update_livestock(request,Tag_number):
     livestock=Livestock.objects.get(Tag_number=Tag_number)
-    form = LivestockForm(request.POST,instance=livestock)
-
-    if form.is_valid():
-        form.save()
-        return redirect("homepage:show-livestock")
-    
+    if request.method == 'POST':
+        form = LivestockForm(request.POST,instance=livestock)
+        if form.is_valid():
+            form.save()
+            return redirect("homepage:show-livestock")
     else:
-        print(form.errors)
-
-    return render(request,"homepage/updatelivestock.html",{'livestock':livestock})
+        form = LivestockForm(instance=livestock)
+    return render(request,"homepage/updatelivestock.html",{'form':form,'livestock':livestock})
 
 def Delete_livestock(request,Tag_number):
     livestock=Livestock.objects.get(Tag_number=Tag_number)
@@ -447,15 +611,14 @@ def Delete_livestock_production(request,Tag_number,Production_date):
 def Update_livestock_production(request,Tag_number,Production_date):
     livestock=get_object_or_404(Livestock,Tag_number=Tag_number)
     livestock_production=get_object_or_404(Livestock_production,livestock__Tag_number=Tag_number,Production_date=Production_date)
-    form=Livestock_productionForm(request.POST,instance=livestock_production)
-
-    if form.is_valid():
-        form.save()
-        return redirect('homepage:show-livestockproduction', Tag_number=livestock_production.livestock.Tag_number)
+    if request.method == 'POST':
+        form=Livestock_productionForm(request.POST,instance=livestock_production)
+        if form.is_valid():
+            form.save()
+            return redirect('homepage:show-livestockproduction', Tag_number=livestock_production.livestock.Tag_number)
     else:
-        print(form.errors)
-
-    return render(request,'homepage/updatelivestockproduction.html',{'livestock':livestock, 'livestock_production':livestock_production})
+        form=Livestock_productionForm(instance=livestock_production)
+    return render(request,'homepage/updatelivestockproduction.html',{'form':form,'livestock':livestock, 'livestock_production':livestock_production})
 
 
 
@@ -469,11 +632,7 @@ def Select_year_month(request):
     return render(request,'homepage/selectyearmonth.html')
 
 # views.py
-import matplotlib
-matplotlib.use('Agg') #rendering the graphs that does not use tikinter in order to remove the tikinter error
-import matplotlib.pyplot as plt
-from io import BytesIO # create an in-memory buffer to temporarily store the binary data of the generated plots.
-import base64 # encode the binary data of the plots into Base64 format(Base64 encoding used to convert binary data into  such as images, into a text-based format that can be easily embedded in HTML)
+# Matplotlib rendering handled at top of file
 
 def Milk_production_by_month(request, selected_year, selected_month):
     # Fetching milk production by the year and month selected
@@ -484,39 +643,45 @@ def Milk_production_by_month(request, selected_year, selected_month):
     total_consumption = [record.Total_consumption for record in milk_production_records]
 
     # Create a bar graph for Total Consumption vs Day
-    plt.figure(figsize=(12, 6))
-    plt.bar(days, total_consumption, color='green')
-    plt.title('Total Consumption vs Day')
-    plt.xlabel('Day')
-    plt.ylabel('Total Consumption')
+    if HAS_MATPLOTLIB:
+        plt.figure(figsize=(12, 6))
+        plt.bar(days, total_consumption, color='green')
+        plt.title('Total Consumption vs Day')
+        plt.xlabel('Day')
+        plt.ylabel('Total Consumption')
     
     # Save the plot to a BytesIO object
     image_stream_consumption = BytesIO()
-    plt.savefig(image_stream_consumption, format='png')
+    if HAS_MATPLOTLIB:
+        plt.savefig(image_stream_consumption, format='png')
     image_stream_consumption.seek(0)
     image_base64_consumption = base64.b64encode(image_stream_consumption.read()).decode('utf-8')
 
     # Close the plot to free up resources
-    plt.close()
+    if HAS_MATPLOTLIB:
+        plt.close()
 
     # Prepare data for the bar graph of milk production vs day
     total_production = [record.Total_production for record in milk_production_records]
 
     # Create a bar graph for Milk Production vs Day
-    plt.figure(figsize=(12, 6))
-    plt.bar(days, total_production, color='blue')
-    plt.title('Milk Production vs Day')
-    plt.xlabel('Day')
-    plt.ylabel('Milk Production')
+    if HAS_MATPLOTLIB:
+        plt.figure(figsize=(12, 6))
+        plt.bar(days, total_production, color='blue')
+        plt.title('Milk Production vs Day')
+        plt.xlabel('Day')
+        plt.ylabel('Milk Production')
 
     # Save the plot to a BytesIO object
     image_stream_production = BytesIO()
-    plt.savefig(image_stream_production, format='png')
+    if HAS_MATPLOTLIB:
+        plt.savefig(image_stream_production, format='png')
     image_stream_production.seek(0)
     image_base64_production = base64.b64encode(image_stream_production.read()).decode('utf-8')
 
     # Close the plot to free up resources
-    plt.close()
+    if HAS_MATPLOTLIB:
+        plt.close('all')
 
     # Pass both base64-encoded images to the template
     return render(request, 'homepage/milkproductionbymonth.html', {
@@ -555,16 +720,14 @@ def Delete_milk_production_by_month(request,selected_year,selected_month,Day):
 
 def Update_milk_production_by_month(request,selected_year,selected_month,Day):
     milk_production_record=get_object_or_404(Milk_production,Day=Day,Year=selected_year,Month=selected_month)
-    form=Milk_productionForm(request.POST,instance=milk_production_record)
-
-    if form.is_valid():
-        form.save()
-        return redirect('homepage:milk-productionbymonth', selected_year=selected_year,selected_month=selected_month)
-    
+    if request.method == 'POST':
+        form=Milk_productionForm(request.POST,instance=milk_production_record)
+        if form.is_valid():
+            form.save()
+            return redirect('homepage:milk-productionbymonth', selected_year=selected_year,selected_month=selected_month)
     else:
-        print(form.errors)
-
-    return render(request,'homepage/updatemilkproduction.html',{'milk_production_record':milk_production_record, 'selected_year':selected_year,'selected_month':selected_month})
+        form=Milk_productionForm(instance=milk_production_record)
+    return render(request,'homepage/updatemilkproduction.html',{'form':form,'milk_production_record':milk_production_record, 'selected_year':selected_year,'selected_month':selected_month})
 
 #Eggs production
 def Select_year_month_egg(request):
@@ -604,15 +767,68 @@ def Delete_egg_production_by_month(request,selected_year,selected_month,Day):
 
 def Update_egg_production_by_month(request,selected_year,selected_month,Day):
     egg_production_record=get_object_or_404(Eggs_production,Day=Day,Year=selected_year,Month=selected_month)
-    form=Egg_productionForm(request.POST,instance=egg_production_record)
-
-    if form.is_valid():
-        form.save()
-        return redirect('homepage:egg-productionrecord',selected_year=selected_year,selected_month=selected_month)
+    if request.method == 'POST':
+        form=Egg_productionForm(request.POST,instance=egg_production_record)
+        if form.is_valid():
+            form.save()
+            return redirect('homepage:egg-productionrecord',selected_year=selected_year,selected_month=selected_month)
     else:
-        print(form.errors)
+        form=Egg_productionForm(instance=egg_production_record)
+    return render(request,'homepage/updateeggproduction.html',{'form':form,'egg_production_record':egg_production_record,'selected_year':selected_year,'selected_month':selected_month})
 
-    return render(request,'homepage/updateeggproduction.html',{'egg_production_record':egg_production_record,'selected_year':selected_year,'selected_month':selected_month})
+
 
 def Help(request):
     return render(request, 'homepage/help.html')
+
+# Crop Disease Analysis View
+from .utils.disease_model import DISEASE_DB, compute_features, classify_plant_and_disease, HAS_ML_DEPS  # type: ignore
+
+@csrf_exempt
+def crop_disease_analysis(request):
+    result = None
+    error = None
+    if request.method == "POST":
+        if "image" not in request.FILES:
+            error = "No image uploaded"
+        else:
+            f = request.FILES["image"]
+            try:
+                if not HAS_ML_DEPS:
+                    raise Exception("Machine learning dependencies (opencv-python, numpy, Pillow) are missing. Please downgrade to Python 3.12 or install C++ Build Tools and run `pip install -r requirements.txt` to enable this feature.")
+                    
+                import numpy as np  # type: ignore
+                import cv2  # type: ignore
+                from PIL import Image  # type: ignore
+                
+                # Read image directly from memory
+                file_bytes = np.frombuffer(f.read(), dtype=np.uint8)
+                bgr = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+                
+                if bgr is None:
+                    # PIL fallback
+                    f.seek(0)
+                    pil = Image.open(f).convert("RGB")
+                    rgb = np.array(pil)
+                else:
+                    rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+                    
+                plant_type = request.POST.get("plant_type")
+                
+                features = compute_features(rgb)
+                plant, disease, confidence = classify_plant_and_disease(features, plant_type)
+                info = DISEASE_DB.get(disease, {"curable":"Unknown","pesticide":"Unknown","prevention":"No data available."})
+                
+                result = {
+                    "plant": plant,
+                    "disease": disease.replace("_", " "),
+                    "confidence": confidence,
+                    "curable": info.get("curable","Unknown"),
+                    "pesticide": info.get("pesticide","Unknown"),
+                    "prevention": info.get("prevention","No data available."),
+                    "features": features
+                }
+            except Exception as e:
+                error = f"Processing failed: {e}"
+                
+    return render(request, "homepage/crop_disease_analysis.html", {"result": result, "error": error})

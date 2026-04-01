@@ -1,0 +1,386 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Crop Disease Analysis</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      body {
+        background-color: #0a0a0a;
+        color: #fff;
+        min-height: 100vh;
+      }
+
+      /* ==================== BACKGROUND ==================== */
+      .page-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-image: url("{% static 'images/bg_crops.png' %}");
+        background-size: cover;
+        background-position: center;
+        opacity: 0.3;
+      }
+
+      /* ==================== HEADER ==================== */
+      .header {
+        position: relative;
+        text-align: center;
+        padding: 30px 20px;
+        background: linear-gradient(135deg, rgba(27, 94, 32, 0.6), rgba(46, 125, 50, 0.5));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 40px;
+      }
+      .header h1 {
+        font-weight: 600;
+        font-size: 28px;
+        margin-bottom: 8px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      }
+      .header p {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .back-btn {
+        position: absolute;
+        left: 30px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      .back-btn:hover {
+        background: #4caf50;
+        border-color: #4caf50;
+        color: white;
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.5);
+      }
+      .back-btn i {
+        margin-right: 8px;
+        font-size: 20px;
+      }
+
+      /* ==================== CARDS ==================== */
+      .glass-card {
+        background: rgba(20, 30, 40, 0.5);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        margin-bottom: 30px;
+      }
+      .glass-card h2 {
+        font-size: 22px;
+        color: #a5d6a7;
+        margin-bottom: 20px;
+        border-bottom: 1px solid rgba(165, 214, 167, 0.3);
+        padding-bottom: 10px;
+        display: flex;
+        align-items: center;
+      }
+      .glass-card h2 i {
+        margin-right: 10px;
+      }
+
+      /* ==================== FORM ==================== */
+      .scan-box-container {
+        text-align: center;
+      }
+      .scan-box-container .form-control {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px dashed rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 15px;
+        border-radius: 12px;
+      }
+      .upload-container .form-control:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #a5d6a7;
+        box-shadow: 0 0 10px rgba(165, 214, 167, 0.3);
+      }
+      .btn-scan {
+        background: linear-gradient(135deg, #43a047, #2e7d32);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        font-size: 16px;
+        border-radius: 30px;
+        margin-top: 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4);
+      }
+      .btn-scan:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(46, 125, 50, 0.6);
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+      }
+
+      /* ==================== RESULTS ==================== */
+      .result-item {
+        margin-bottom: 15px;
+        background: rgba(0, 0, 0, 0.3);
+        padding: 15px 20px;
+        border-radius: 12px;
+        border-left: 4px solid #43a047;
+      }
+      .result-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #a5d6a7;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+      }
+      .result-value {
+        font-size: 18px;
+        font-weight: 500;
+      }
+      .feature-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 8px 15px;
+        border-radius: 20px;
+        margin: 5px;
+        font-size: 13px;
+        transition: all 0.3s;
+      }
+      .feature-badge:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: #a5d6a7;
+      }
+      .feature-badge strong {
+        color: #a5d6a7;
+      }
+
+      .preview-img {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 12px;
+        border: 2px solid rgba(255,255,255,0.2);
+        margin-bottom: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+      }
+
+      /* Error Alert */
+      .error-alert {
+        background: rgba(211, 47, 47, 0.8);
+        border-left: 4px solid #ff5252;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-bg"></div>
+
+    <div class="header">
+      <a href="{% url 'homepage:mainpage' %}" class="back-btn"><i class='bx bx-arrow-back'></i> Dashboard</a>
+      <h1><i class='bx bx-scan'></i> AI Crop Disease Analysis</h1>
+      <p>Upload a clear image of a crop leaf (Rice, Tomato, Corn, or Potato) to detect diseases instantly.</p>
+    </div>
+
+    <div class="container" style="padding-top: 20px;">
+      {% if error %}
+      <div class="alert error-alert alert-dismissible fade show" role="alert">
+        <i class='bx bx-error-circle'></i> {{ error }}
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endif %}
+
+      <div class="row justify-content-center mt-4">
+        <!-- Upload Section -->
+        <div class="col-12 col-md-10 col-lg-{% if result %}4{% else %}8{% endif %}">
+          <div class="glass-card scan-box-container">
+            <h2><i class='bx bx-upload'></i> Upload Leaf Image</h2>
+            <form action="{% url 'homepage:crop-disease-analysis' %}" method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="mb-3 text-start">
+                <label for="plant_type" class="form-label text-light mb-1" style="font-size: 14px;">Select Crop Type</label>
+                <select class="form-control" name="plant_type" id="plant_type" required>
+                  <option value="" disabled selected style="color: black;">Choose crop...</option>
+                  <optgroup label="Major Field Crops" style="color: black;">
+                    <option value="rice">Rice</option>
+                    <option value="wheat">Wheat</option>
+                    <option value="maize">Maize (Corn)</option>
+                    <option value="millets">Millets</option>
+                    <option value="barley">Barley</option>
+                    <option value="oats">Oats</option>
+                  </optgroup>
+                  <optgroup label="Pulses & Oilseeds" style="color: black;">
+                    <option value="lentils">Lentils</option>
+                    <option value="chickpeas">Chickpeas</option>
+                    <option value="moong">Moong</option>
+                    <option value="peas">Peas</option>
+                    <option value="soybean">Soybean</option>
+                    <option value="mustard">Mustard</option>
+                    <option value="groundnut">Groundnut</option>
+                    <option value="sunflower">Sunflower</option>
+                    <option value="castor">Castor</option>
+                  </optgroup>
+                  <optgroup label="Fiber & Industrial Crops" style="color: black;">
+                    <option value="cotton">Cotton</option>
+                    <option value="sugarcane">Sugarcane</option>
+                    <option value="jute">Jute</option>
+                    <option value="tobacco">Tobacco</option>
+                  </optgroup>
+                  <optgroup label="Plantation & Beverage" style="color: black;">
+                    <option value="tea">Tea</option>
+                    <option value="coffee">Coffee</option>
+                    <option value="rubber">Rubber</option>
+                    <option value="coconut">Coconut</option>
+                  </optgroup>
+                  <optgroup label="Vegetables, Fruits" style="color: black;">
+                    <option value="potato">Potato</option>
+                    <option value="onion">Onion</option>
+                    <option value="tomato">Tomato</option>
+                    <option value="cauliflower">Cauliflower</option>
+                    <option value="garlic">Garlic</option>
+                    <option value="mango">Mango</option>
+                    <option value="banana">Banana</option>
+                    <option value="grapes">Grapes</option>
+                    <option value="citrus">Citrus (Sweet lime)</option>
+                  </optgroup>
+                  <optgroup label="Specialty Crops" style="color: black;">
+                    <option value="spices">Spices (Pepper, Turmeric)</option>
+                    <option value="medicinal">Medicinal herbs</option>
+                    <option value="tapioca">Tapioca</option>
+                  </optgroup>
+                  <optgroup label="Alternative Crops" style="color: black;">
+                    <option value="berries">Berries</option>
+                    <option value="bamboo">Bamboo</option>
+                    <option value="cactus">Cactus</option>
+                    <option value="rhubarb">Rhubarb</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="mb-3 text-start">
+                <label for="image" class="form-label text-light mb-1" style="font-size: 14px;">Upload Leaf Image</label>
+                <input class="form-control" type="file" id="image" name="image" accept="image/*" required onchange="previewFile()">
+              </div>
+              <img id="preview" class="preview-img" style="display:none;" />
+              <button type="submit" class="btn-scan"><i class='bx bx-search-alt-2'></i> Analyze Leaf</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Results Section -->
+        {% if result %}
+        <div class="col-lg-8">
+          <div class="glass-card">
+            <h2><i class='bx bx-chart'></i> Analysis Report</h2>
+            
+            <div class="row">
+              <div class="col-md-6">
+                <!-- Primary info -->
+                <div class="result-item">
+                  <div class="result-label">Detected Plant</div>
+                  <div class="result-value text-capitalize">{{ result.plant }}</div>
+                </div>
+                
+                <div class="result-item" {% if 'healthy' in result.disease %}style="border-color: #4caf50;"{% else %}style="border-color: #f44336;"{% endif %}>
+                  <div class="result-label">Disease Status</div>
+                  <div class="result-value text-capitalize" {% if 'healthy' in result.disease %}style="color: #a5d6a7;"{% else %}style="color: #ffab91;"{% endif %}>
+                    {{ result.disease }}
+                  </div>
+                </div>
+
+                <div class="result-item">
+                  <div class="result-label">AI Confidence</div>
+                  <div class="progress mt-2" style="height: 10px; background: rgba(255,255,255,0.1);">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%;" data-width="{{ result.confidence }}%" aria-valuenow="{{ result.confidence }}" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <script>document.querySelectorAll('.progress-bar[data-width]').forEach(el => el.style.width = el.getAttribute('data-width'));</script>
+                  <div class="text-end mt-1 text-success fw-bold">{{ result.confidence }}%</div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <!-- Recommendations -->
+                <div class="result-item" style="border-color: #2196f3">
+                  <div class="result-label">Curable?</div>
+                  <div class="result-value">{{ result.curable }}</div>
+                </div>
+
+                <div class="result-item" style="border-color: #ff9800">
+                  <div class="result-label">Recommended Pesticide</div>
+                  <div class="result-value">{{ result.pesticide }}</div>
+                </div>
+
+                <div class="result-item" style="border-color: #9c27b0">
+                  <div class="result-label">Prevention Guidelines</div>
+                  <div class="result-value" style="font-size: 15px">{{ result.prevention }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Developer / Exact ML Data View -->
+            <h4 class="mt-4 mb-3" style="font-size: 16px; color: rgba(255,255,255,0.6);"><i class='bx bx-code-alt'></i> Extracted Image Features</h4>
+            <div class="d-flex flex-wrap">
+              <div class="feature-badge"><strong>Green Ratio:</strong> {{ result.features.green_ratio|floatformat:4 }}</div>
+              <div class="feature-badge"><strong>Brown Ratio:</strong> {{ result.features.brown_ratio|floatformat:4 }}</div>
+              <div class="feature-badge"><strong>Yellow Ratio:</strong> {{ result.features.yellow_ratio|floatformat:4 }}</div>
+              <div class="feature-badge"><strong>Spot Count:</strong> {{ result.features.spot_count }}</div>
+              <div class="feature-badge"><strong>Avg Spot Area:</strong> {{ result.features.avg_spot_area|floatformat:2 }} px²</div>
+              <div class="feature-badge"><strong>Aspect Ratio:</strong> {{ result.features.aspect|floatformat:3 }}</div>
+              <div class="feature-badge"><strong>Leaf Area Ratio:</strong> {{ result.features.leaf_area_ratio|floatformat:4 }}</div>
+            </div>
+            
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function previewFile() {
+        const preview = document.getElementById('preview');
+        const fileInput = document.getElementById('image');
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.addEventListener("load", function () {
+          preview.src = reader.result;
+          preview.style.display = "block";
+        }, false);
+
+        if (file) {
+          reader.readAsDataURL(file);
+        }
+      }
+    </script>
+  </body>
+</html>
