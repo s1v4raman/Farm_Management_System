@@ -1,0 +1,52 @@
+{% extends 'homepage/base.html' %}
+{% block title %}Yearly Egg Production — Farm Management System{% endblock %}
+{% block page_title %}Yearly Egg Production{% endblock %}
+{% block content %}
+<div class="table-container">
+  <div class="table-header">
+    <h2><i class='bx bx-calendar-alt'></i> Yearly Egg Production Summary — {{ selected_year }}</h2>
+    <a href="{% url 'homepage:select-yearandmonth' %}" class="btn" style="background: #64748b; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px;"><i class='bx bx-arrow-back'></i> Back</a>
+  </div>
+  
+  {% if monthly_data %}
+  <table>
+    <thead>
+      <tr>
+        <th>Month</th>
+        <th>Total Egg Collection</th>
+        <th>Total Feed Consumption (Kg)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for data in monthly_data %}
+      <tr>
+        <td>{{ data.Month }}</td>
+        <td>{{ data.total_prod|floatformat:2 }}</td>
+        <td>{{ data.total_cons|floatformat:2 }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if image_base64_production %}
+  <div class="chart-section" style="margin-top: 30px;">
+    <h3><i class='bx bx-line-chart'></i> Egg Production vs Month</h3>
+    <img src="data:image/png;base64,{{ image_base64_production }}" alt="Egg Production vs Month" style="max-width: 100%;">
+  </div>
+  {% endif %}
+
+  {% if image_base64_consumption %}
+  <div class="chart-section" style="margin-top: 30px;">
+    <h3><i class='bx bx-line-chart'></i> Total Feed Consumption vs Month</h3>
+    <img src="data:image/png;base64,{{ image_base64_consumption }}" alt="Total Consumption vs Month" style="max-width: 100%;">
+  </div>
+  {% endif %}
+  
+  {% else %}
+  <div style="padding: 40px; text-align: center; color: #64748b; background: white; border-radius: 8px;">
+    <i class='bx bx-info-circle' style="font-size: 2rem; margin-bottom: 10px;"></i>
+    <p>No egg production records found for the year {{ selected_year }}.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

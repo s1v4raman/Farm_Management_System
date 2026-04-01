@@ -44,13 +44,13 @@ class Crop_expenses(models.Model):
     crops=models.ForeignKey(Crops,on_delete=models.CASCADE)
 
     Expense_date=models.DateField(help_text='m/d/y')
-    Expense_type=models.CharField(max_length=20)
+    Expense_type=models.CharField(max_length=100)
     Expense_description=models.TextField()
-    Budget= models.DecimalField(max_digits=10,decimal_places=2,default=0)
+
     Expense_amount=models.DecimalField(max_digits=10,decimal_places=2,default=0)
-    Supplier=models.CharField(max_length=20)
-    Payment_method=models.CharField(max_length=10)
-    Receipt_number=models.CharField(max_length=20)
+    Supplier=models.CharField(max_length=255)
+    Payment_method=models.CharField(max_length=50)
+    Receipt_number=models.CharField(max_length=100)
 
     class Meta:
         db_table="Crop_expenses"
@@ -74,27 +74,28 @@ class Crop_sales(models.Model):
 
 
     def save(self, *args, **kwargs):
-        # Convert Decimal values to float for multiplication
-        quantity_sold = float(self.Quantity_sold)
-        unit_price = float(self.Unit_price)
-
-            # Calculate total sale amount before saving
-        self.Total_price = Decimal(quantity_sold * unit_price)
-        super().save(*args, **kwargs) #here we are calling the initial save 
-
-class Crop_operations(models.Model):
-    crops=models.ForeignKey(Crops,on_delete=models.CASCADE)
-
-    Operation_date=models.DateField(help_text="m/d/y")
-    Operation_name=models.CharField(max_length=20)
-    Additional_notes=models.TextField(blank=True)
-
-    class Meta:
-        db_table="Crop_operations"
-
-    
-
+        import re
+        from decimal import Decimal
         
+        try:
+            qty_str = str(self.Quantity_sold)
+            numbers = re.findall(r"[-+]?\d*\.\d+|\d+", qty_str)
+            if numbers:
+                quantity_sold = Decimal(numbers[0])
+            else:
+                quantity_sold = Decimal('0')
+        except Exception:
+            quantity_sold = Decimal('0')
+
+        try:
+            unit_price = Decimal(str(self.Unit_price))
+        except Exception:
+            unit_price = Decimal('0')
+
+        self.Total_price = quantity_sold * unit_price
+        super().save(*args, **kwargs)
+
+
 class Machinery(models.Model):
     user=models.ForeignKey(User, on_delete=models.CASCADE,default=1)
     
@@ -131,28 +132,7 @@ class Machinery_maintenance(models.Model):
         db_table="Machinery_activities"
 
 
-class Livestock(models.Model):
-    user=models.ForeignKey(User, on_delete=models.CASCADE, default=1)
-
-    Tag_number = models.CharField(max_length=20, primary_key=True)
-    Animal_type= models.CharField(max_length=20)
-    Age= models.IntegerField()
-    Breed= models.CharField(max_length=20)
-
-    class Meta:
-        db_table = "Livestock"
-
-    
-
-class Livestock_production(models.Model):
-    livestock=models.ForeignKey(Livestock,on_delete=models.CASCADE)
-    Production_date=models.DateField(help_text='m/d/y')
-    Production_amount=models.CharField(max_length=20)
-    Feed_consumed=models.DecimalField(max_digits=10,decimal_places=2,help_text='field consumed in kg')
-    Comments=models.TextField(null=True,blank=True)
-
-    class Meta:
-        db_table="Livestock_production"
+# Livestock Models Removed
 
 class Milk_production(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE, default=1)
@@ -214,6 +194,9 @@ class Eggs_production(models.Model):
 
         morning_feeds=float(self.Morning_feeds)
         evening_feeds=float(self.Evening_feeds)
+        self.Total_feeds=Decimal(morning_feeds+evening_feeds)
+        
+        super().save(*args, **kwargs)
 
 class FarmExpense(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
@@ -243,10 +226,18 @@ class FarmExpense(models.Model):
         super().save(*args, **kwargs)
 
 class WaterSchedule(models.Model):
+    WATER_LEVEL_CHOICES = (
+        ('High', 'High'),
+        ('Medium', 'Medium'),
+        ('Low', 'Low'),
+        ('Dry', 'Dry'),
+    )
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
     
     crop = models.CharField(max_length=100, help_text='Select crop type for water estimation')
     field_area = models.DecimalField(max_digits=8, decimal_places=2, help_text='Area in Acres')
+    water_level = models.CharField(max_length=20, choices=WATER_LEVEL_CHOICES, default='Dry', help_text='Current water level of the land')
     water_source_flow_rate = models.DecimalField(max_digits=10, decimal_places=2, help_text='Pump flow rate in Liters per Minute (LPM)')
     mobile_number = models.CharField(max_length=15, default="", help_text='Phone number to send SMS alert to (e.g. +919876543210)')
 
@@ -259,3 +250,94 @@ class WaterSchedule(models.Model):
     
     class Meta:
         db_table = "WaterSchedule"
+
+# --- RETAIL OPERATIONS MODELS ---
+
+class Retail_Crop_Sales(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    Date = models.DateField(help_text='m/d/y')
+    Crop_Name = models.CharField(max_length=50)
+    Quantity_Sold = models.DecimalField(max_digits=10, decimal_places=2, help_text="Quantity in Kg/Tons")
+    Unit_Price = models.DecimalField(max_digits=10, decimal_places=2)
+    Total_Amount = models.DecimalField(max_digits=12, decimal_places=2, editable=False, default=0)
+    Customer_Name = models.CharField(max_length=100)
+    Payment_Method = models.CharField(max_length=20, choices=[('Cash', 'Cash'), ('Card', 'Card'), ('UPI', 'UPI'), ('Other', 'Other')])
+    Product_Image = models.ImageField(upload_to='retail_images/', null=True, blank=True)
+
+    class Meta:
+        db_table = "Retail_Crop_Sales"
+
+    def save(self, *args, **kwargs):
+        self.Total_Amount = Decimal(float(self.Quantity_Sold) * float(self.Unit_Price))
+        super().save(*args, **kwargs)
+
+class Retail_Egg_Sales(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    Date = models.DateField(help_text='m/d/y')
+    Tray_Count = models.IntegerField(default=0, help_text="Number of trays sold")
+    Egg_Count = models.IntegerField(default=0, help_text="Number of individual eggs sold")
+    Price_Per_Tray = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    Price_Per_Egg = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    Total_Amount = models.DecimalField(max_digits=12, decimal_places=2, editable=False, default=0)
+    Customer_Name = models.CharField(max_length=100)
+    Payment_Method = models.CharField(max_length=20, choices=[('Cash', 'Cash'), ('Card', 'Card'), ('UPI', 'UPI'), ('Other', 'Other')], default='Cash')
+    Product_Image = models.ImageField(upload_to='retail_images/', null=True, blank=True)
+
+    class Meta:
+        db_table = "Retail_Egg_Sales"
+
+    def save(self, *args, **kwargs):
+        tray_total = float(self.Tray_Count) * float(self.Price_Per_Tray)
+        egg_total = float(self.Egg_Count) * float(self.Price_Per_Egg)
+        self.Total_Amount = Decimal(tray_total + egg_total)
+        super().save(*args, **kwargs)
+
+class Retail_Milk_Sales(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    Date = models.DateField(help_text='m/d/y')
+    Quantity_Liters = models.DecimalField(max_digits=10, decimal_places=2, help_text="Quantity in Liters")
+    Price_Per_Liter = models.DecimalField(max_digits=10, decimal_places=2)
+    Total_Amount = models.DecimalField(max_digits=12, decimal_places=2, editable=False, default=0)
+    Customer_Name = models.CharField(max_length=100)
+    Payment_Method = models.CharField(max_length=20, choices=[('Cash', 'Cash'), ('Card', 'Card'), ('UPI', 'UPI'), ('Other', 'Other')], default='Cash')
+    Product_Image = models.ImageField(upload_to='retail_images/', null=True, blank=True)
+
+    class Meta:
+        db_table = "Retail_Milk_Sales"
+
+    def save(self, *args, **kwargs):
+        self.Total_Amount = Decimal(float(self.Quantity_Liters) * float(self.Price_Per_Liter))
+        super().save(*args, **kwargs)
+
+class Retail_Machinery_Renting(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+    Date = models.DateField(help_text='m/d/y')
+    Machinery_Used = models.CharField(max_length=100)
+    Service_Provided = models.CharField(max_length=100)
+    Hours_Rented = models.DecimalField(max_digits=6, decimal_places=2)
+    Rate_Per_Hour = models.DecimalField(max_digits=10, decimal_places=2)
+    Total_Amount = models.DecimalField(max_digits=12, decimal_places=2, editable=False, default=0)
+    Customer_Name = models.CharField(max_length=100)
+    Payment_Method = models.CharField(max_length=20, choices=[('Cash', 'Cash'), ('Card', 'Card'), ('UPI', 'UPI'), ('Other', 'Other')], default='Cash')
+    Product_Image = models.ImageField(upload_to='retail_images/', null=True, blank=True)
+
+    class Meta:
+        db_table = "Retail_Machinery_Renting"
+
+    def save(self, *args, **kwargs):
+        self.Total_Amount = Decimal(float(self.Hours_Rented) * float(self.Rate_Per_Hour))
+        super().save(*args, **kwargs)
+
+# Retail Livestock Sales Model Removed
+
+class ContactDetail(models.Model):
+    phone = models.CharField(max_length=20, default="+91 91594 42229")
+    email = models.EmailField(default="support@agrimarket.com")
+    address = models.TextField(default="#42, Madurai Bypass Rd, Madurai, TN 625020")
+    
+    class Meta:
+        verbose_name = "Contact Detail"
+        verbose_name_plural = "Contact Details"
+
+    def __str__(self):
+        return "System Contact Information"

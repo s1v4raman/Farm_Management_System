@@ -1,0 +1,41 @@
+{% extends 'homepage/base.html' %}
+{% block content %}
+<div class="main-content-inner" style="padding: 40px; max-width: 800px; margin: 0 auto;">
+    <div style="background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid var(--border-color);">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+            <div style="width: 50px; height: 50px; background: rgba(0,204,0,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #00cc00; font-size: 24px;">
+                <i class='bx bx-headphone'></i>
+            </div>
+            <div>
+                <h1 style="font-size: 24px; font-weight: 700; color: #2d3436; margin: 0;">Manage Contact Details</h1>
+                <p style="color: #666; margin: 0;">Update the phone, email, and address shown in the Support dropdown.</p>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #444;">Support Phone Number</label>
+                    <input type="text" name="phone" value="{{ contact.phone }}" style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #ddd; outline: none; transition: 0.3s;" required>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #444;">Support Email Address</label>
+                    <input type="email" name="email" value="{{ contact.email }}" style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #ddd; outline: none;" required>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #444;">Office Address</label>
+                    <textarea name="address" rows="3" style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #ddd; outline: none; resize: none;" required>{{ contact.address }}</textarea>
+                </div>
+
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button type="submit" style="background: #00cc00; color: #fff; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; flex-grow: 1;">Save Changes</button>
+                    <a href="{% url 'homepage:mainpage' %}" style="background: #f4f5f7; color: #444; text-decoration: none; padding: 14px 28px; border-radius: 12px; font-weight: 700; text-align: center;">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -2,7 +2,7 @@ import requests # type: ignore
 from datetime import datetime
 
 # Coordinates for major states and districts in India
-INDIA_REGIONS = {
+INDIA_STATES = {
     "Andhra Pradesh": {
         "Visakhapatnam": {"lat": 17.6868, "lon": 83.2185}, "Vijayawada": {"lat": 16.5062, "lon": 80.6480}, "Guntur": {"lat": 16.3067, "lon": 80.4365},
     },
@@ -40,6 +40,38 @@ INDIA_REGIONS = {
     "West Bengal": {"Kolkata": {"lat": 22.5726, "lon": 88.3639}, "Siliguri": {"lat": 26.7271, "lon": 88.3953}, "Darjeeling": {"lat": 27.0360, "lon": 88.2636}}
 }
 
+USA_STATES = {
+    "California": {"Los Angeles": {"lat": 34.0522, "lon": -118.2437}, "San Francisco": {"lat": 37.7749, "lon": -122.4194}, "Fresno": {"lat": 36.7378, "lon": -119.7871}, "Sacramento": {"lat": 38.5816, "lon": -121.4944}, "San Diego": {"lat": 32.7157, "lon": -117.1611}},
+    "Texas": {"Houston": {"lat": 29.7604, "lon": -95.3698}, "Austin": {"lat": 30.2672, "lon": -97.7431}, "Dallas": {"lat": 32.7767, "lon": -96.7970}, "San Antonio": {"lat": 29.4241, "lon": -98.4936}, "El Paso": {"lat": 31.7619, "lon": -106.4850}},
+    "Florida": {"Miami": {"lat": 25.7617, "lon": -80.1918}, "Orlando": {"lat": 28.5383, "lon": -81.3792}, "Tampa": {"lat": 27.9506, "lon": -82.4572}, "Jacksonville": {"lat": 30.3322, "lon": -81.6557}},
+    "New York": {"New York City": {"lat": 40.7128, "lon": -74.0060}, "Buffalo": {"lat": 42.8864, "lon": -78.8784}, "Rochester": {"lat": 43.1566, "lon": -77.6088}},
+    "Illinois": {"Chicago": {"lat": 41.8781, "lon": -87.6298}, "Springfield": {"lat": 39.7817, "lon": -89.6501}},
+    "Washington": {"Seattle": {"lat": 47.6062, "lon": -122.3321}, "Spokane": {"lat": 47.6588, "lon": -117.4260}},
+}
+
+UK_STATES = {
+    "England": {"London": {"lat": 51.5074, "lon": -0.1278}, "Manchester": {"lat": 53.4808, "lon": -2.2426}, "Birmingham": {"lat": 52.4862, "lon": -1.8904}, "Liverpool": {"lat": 53.4084, "lon": -2.9916}, "Leeds": {"lat": 53.8008, "lon": -1.5491}},
+    "Scotland": {"Edinburgh": {"lat": 55.9533, "lon": -3.1883}, "Glasgow": {"lat": 55.8642, "lon": -4.2518}, "Aberdeen": {"lat": 57.1497, "lon": -2.0943}},
+    "Wales": {"Cardiff": {"lat": 51.4816, "lon": -3.1791}, "Swansea": {"lat": 51.6214, "lon": -3.9436}, "Newport": {"lat": 51.5842, "lon": -2.9977}},
+    "Northern Ireland": {"Belfast": {"lat": 54.5973, "lon": -5.9301}, "Derry": {"lat": 55.0068, "lon": -7.3183}},
+}
+
+AUSTRALIA_STATES = {
+    "New South Wales": {"Sydney": {"lat": -33.8688, "lon": 151.2093}, "Newcastle": {"lat": -32.9283, "lon": 151.7817}, "Wollongong": {"lat": -34.4278, "lon": 150.8931}},
+    "Victoria": {"Melbourne": {"lat": -37.8136, "lon": 144.9631}, "Geelong": {"lat": -38.1499, "lon": 144.3617}, "Ballarat": {"lat": -37.5622, "lon": 143.8503}},
+    "Queensland": {"Brisbane": {"lat": -27.4698, "lon": 153.0251}, "Gold Coast": {"lat": -28.0167, "lon": 153.4000}, "Cairns": {"lat": -16.9186, "lon": 145.7781}},
+    "Western Australia": {"Perth": {"lat": -31.9505, "lon": 115.8605}, "Fremantle": {"lat": -32.0569, "lon": 115.7439}},
+    "South Australia": {"Adelaide": {"lat": -34.9285, "lon": 138.6007}, "Mount Gambier": {"lat": -37.8284, "lon": 140.7804}},
+}
+
+WORLD_REGIONS = {
+    "India": INDIA_STATES,
+    "United States": USA_STATES,
+    "United Kingdom": UK_STATES,
+    "Australia": AUSTRALIA_STATES
+}
+
+
 def get_realtime_weather():
     """Returns empty as we now require a specific state and district."""
     return []
@@ -63,7 +95,7 @@ def get_dashboard_weather():
         print(f"Error fetching IP location for dashboard weather: {e}")
         
     # Using Pune as a fallback agricultural proxy if IP location fails or isn't available
-    weather_data = get_realtime_weather_for_district("Maharashtra", "Pune")
+    weather_data = get_realtime_weather_for_district("India", "Maharashtra", "Pune")
     if weather_data and not weather_data[0].get('error'):
         return weather_data[0]
     return None
@@ -94,15 +126,14 @@ def _fetch_weather_from_coords(lat, lon, city):
         print(f"Error fetching weather for coords {lat},{lon}: {e}")
     return None
 
-def get_realtime_weather_for_district(state, district):
-    """Fetches real-time weather for a single specific district within a state."""
-    if state not in INDIA_REGIONS or district not in INDIA_REGIONS[state]:
+def get_realtime_weather_for_district(country, state, district):
+    """Fetches real-time weather for a single specific district within a state/country."""
+    if country not in WORLD_REGIONS or state not in WORLD_REGIONS[country] or district not in WORLD_REGIONS[country][state]:
         return [_get_fallback_data(district)]
     
-    coords = INDIA_REGIONS[state][district]
+    coords = WORLD_REGIONS[country][state][district]
     try:
         tz_encoded = "Asia%2FKolkata"
-
         url = (
             f"https://api.open-meteo.com/v1/forecast"
             f"?latitude={coords['lat']}&longitude={coords['lon']}"
@@ -122,11 +153,103 @@ def get_realtime_weather_for_district(state, district):
                 "wind_speed": current.get("wind_speed_10m", "--"),
                 "time": current.get("time", "").replace("T", " ")
             }]
-        else:
-            return [_get_fallback_data(district)]
     except Exception as e:
         print(f"Error fetching weather for {district}: {e}")
-        return [_get_fallback_data(district)]
+    return [_get_fallback_data(district)]
+
+def get_7_day_weather_forecast(country, state, district):
+    """
+    Fetches the 7-day weather forecast (1 past, 1 present, 5 future) for a given district.
+    Uses Open-Meteo geocoding to dynamically find coordinates.
+    """
+    try:
+        # Step 1: Geocode the location
+        # Using district name to find coordinates
+        geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={district}&count=10&language=en&format=json"
+        geo_res = requests.get(geo_url, timeout=5)
+        
+        if geo_res.status_code != 200:
+            return None
+            
+        geo_data = geo_res.json()
+        if not geo_data.get("results"):
+            # If district fails, try state
+            geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={state}&count=5&language=en&format=json"
+            geo_data = requests.get(geo_url, timeout=5).json()
+            if not geo_data.get("results"):
+                return None
+                
+        results = geo_data["results"]
+        # Find best match by country if possible
+        best_match = results[0]
+        for r in results:
+            if r.get("country", "").lower() == country.lower():
+                best_match = r
+                break
+                
+        lat = best_match["latitude"]
+        lon = best_match["longitude"]
+        resolved_city = best_match.get("name", district)
+
+        # Step 2: Fetch 7-day forecast (past_days=1, forecast_days=6 equals 7 days total including today)
+        tz_encoded = "auto"
+        weather_url = (
+            f"https://api.open-meteo.com/v1/forecast"
+            f"?latitude={lat}&longitude={lon}"
+            f"&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m"
+            f"&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,uv_index_max"
+            f"&timezone={tz_encoded}"
+            f"&past_days=1&forecast_days=6"
+        )
+        
+        weather_res = requests.get(weather_url, timeout=5)
+        if weather_res.status_code != 200:
+            return None
+            
+        weather_data = weather_res.json()
+        current = weather_data.get("current", {})
+        daily = weather_data.get("daily", {})
+        
+        # Build response object
+        response = {
+            "city": resolved_city,
+            "current": {
+                "temperature": current.get("temperature_2m", "--"),
+                "humidity": current.get("relative_humidity_2m", "--"),
+                "rainfall": current.get("precipitation", "--"),
+                "wind_speed": current.get("wind_speed_10m", "--"),
+                "time": current.get("time", "").replace("T", " ")
+            },
+            "forecast": []
+        }
+        
+        # Process the 7 days (index 0 is yesterday, index 1 is today, 2-6 are future)
+        times = daily.get("time", [])
+        for i in range(len(times)):
+            day_type = "Future"
+            if i == 0:
+                day_type = "Previous Day"
+            elif i == 1:
+                day_type = "Present Day"
+                
+            # Parse date to weekday
+            date_obj = datetime.strptime(times[i], "%Y-%m-%d")
+            weekday = date_obj.strftime("%A")
+                
+            response["forecast"].append({
+                "date": times[i],
+                "weekday": weekday,
+                "day_type": day_type,
+                "temp_max": daily.get("temperature_2m_max", [])[i],
+                "temp_min": daily.get("temperature_2m_min", [])[i],
+                "rainfall": daily.get("precipitation_sum", [])[i],
+                "wind_speed_max": daily.get("wind_speed_10m_max", [])[i],
+            })
+            
+        return response
+    except Exception as e:
+        print(f"Error fetching 7-day forecast API: {e}")
+        return None
 
 def _get_fallback_data(city):
     """Fallback data in case the API fails or is unreachable."""

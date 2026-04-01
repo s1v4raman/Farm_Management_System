@@ -1,4 +1,4 @@
-{% extends 'homepage/home.html' %}
+{% extends 'homepage/base.html' %}
 {% load static %}
 
 {% block content %}
@@ -107,6 +107,12 @@
         <label class="form-label">Field Area (Acres)</label>
         {{ form.field_area }}
         <span class="form-help">The total area of the land segment being watered.</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Water Level</label>
+        {{ form.water_level }}
+        <span class="form-help">Select the current water level of the land to calculate pumping time.</span>
       </div>
 
       <div class="form-group">

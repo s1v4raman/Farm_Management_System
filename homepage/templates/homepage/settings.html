@@ -1,0 +1,94 @@
+{% extends 'homepage/base.html' %}
+{% load static %}
+
+{% block page_title %}Settings{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8 px-4">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class='bx bx-cog text-blue-500 text-2xl'></i>
+                    Account Settings
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Manage your account preferences and profile details.</p>
+            </div>
+            <div class="h-12 w-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold">
+                {{ user.username|make_list|first|upper }}
+            </div>
+        </div>
+        
+        <div class="p-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                
+                <!-- Profile Section -->
+                <div class="space-y-6 md:pr-8">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-100">Profile Information</h3>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Username</label>
+                        <div class="px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-gray-900 font-medium">
+                            {{ user.username }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Email Address</label>
+                        <div class="px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-gray-900 font-medium">
+                            {% if user.email %}{{ user.email }}{% else %}<span class="text-gray-400 italic">Not provided</span>{% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 mb-1">Account Role</label>
+                        <div class="px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 inline-flex items-center gap-2">
+                            {% if user.is_superuser %}
+                                <i class='bx bxs-shield-star text-purple-500'></i>
+                                <span class="font-bold text-purple-600">Administrator</span>
+                            {% elif user.is_staff %}
+                                <i class='bx bx-user-pin text-green-500'></i>
+                                <span class="font-bold text-green-600">Farmer / Staff</span>
+                            {% else %}
+                                <i class='bx bx-user text-blue-500'></i>
+                                <span class="font-bold text-blue-600">Customer</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences / Security Section -->
+                <div class="space-y-6 md:pl-8 pt-8 md:pt-0">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-100">Security & Preferences</h3>
+                    
+                    <div class="bg-blue-50 rounded-xl p-5 border border-blue-100">
+                        <div class="flex items-start gap-4">
+                            <div class="bg-white p-2 rounded-lg text-blue-600 shadow-sm">
+                                <i class='bx bx-lock-alt text-2xl'></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900 mb-1">Password Management</h4>
+                                <p class="text-sm text-gray-600 mb-3">To change your password or update sensitive details, please contact the administrator or use the password reset link during login.</p>
+                                <button onclick="alert('Password reset link sent to your email (Demo)')" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm">
+                                    Request Password Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 mt-4 text-center">
+                        <i class='bx bx-info-circle text-gray-400 text-3xl mb-2'></i>
+                        <p class="text-sm text-gray-500">More settings and profile customization options will be available in the upcoming v2.0 update.</p>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end">
+                <a href="{% url 'homepage:mainpage' %}" class="px-6 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors mr-3">Back to Home</a>
+                <button onclick="alert('Settings saved successfully! (Demo)')" class="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 shadow-sm transition-colors">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

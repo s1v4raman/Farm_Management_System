@@ -1,0 +1,131 @@
+{% extends 'homepage/base.html' %}
+{% load static %}
+
+{% block page_title %}Production Dashboard{% endblock %}
+{% block page_subtitle %}Track and analyze your farm's production metrics.{% endblock %}
+
+{% block content %}
+<style>
+    .dash-wrapper {
+        padding: 20px 0;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .dash-subtitle {
+        text-align: center;
+        color: #64748b;
+        font-size: 1.1rem;
+        margin-bottom: 40px;
+        font-family: 'Inter', sans-serif;
+    }
+    
+    .module-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+        padding: 10px;
+    }
+    
+    .module-card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        height: 100%;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    
+    .module-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
+        border-color: #cbd5e1;
+    }
+    
+    .module-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background-color: #ecfdf5;
+        color: #10b981;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .module-card h3 {
+        font-family: 'Inter', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+    
+    .module-card p {
+        font-family: 'Inter', sans-serif;
+        font-size: 14.5px;
+        color: #64748b;
+        line-height: 1.6;
+        margin-bottom: 30px;
+        flex-grow: 1;
+    }
+    
+    .module-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 12px 16px;
+        background-color: #f8fafc;
+        color: #10b981;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 8px;
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+        width: 100%;
+        gap: 8px;
+    }
+    
+    .module-card:hover .module-btn {
+        background-color: #f1f5f9;
+        color: #059669;
+    }
+</style>
+
+<div class="dash-wrapper">
+    
+    <div class="module-grid">
+        
+        <!-- Milk Production Card -->
+        <a href="{% url 'homepage:select-yearmonth' %}" class="module-card">
+            <div class="module-icon" style="background: rgba(0, 204, 0, 0.05); color: #00cc00;">
+                <i class="bx bx-droplet"></i>
+            </div>
+            <h3 style="color: #000;">Milk Production</h3>
+            <p>Keep the trends of your milk production.</p>
+            <div class="module-btn" style="color: #00cc00; border-color: rgba(0, 204, 0, 0.2);">
+                Milk Analytics <i class="bx bx-line-chart"></i>
+            </div>
+        </a>
+        
+        <!-- Egg Production Card -->
+        <a href="{% url 'homepage:select-yearandmonth' %}" class="module-card">
+            <div class="module-icon" style="background: rgba(0, 204, 0, 0.05); color: #00cc00;">
+                <i class="bx bx-cookie"></i>
+            </div>
+            <h3 style="color: #000;">Egg Production</h3>
+            <p>Keep the trends of your egg production.</p>
+            <div class="module-btn" style="color: #00cc00; border-color: rgba(0, 204, 0, 0.2);">
+                Egg Analytics <i class="bx bx-line-chart"></i>
+            </div>
+        </a>
+        
+    </div>
+</div>
+{% endblock %}

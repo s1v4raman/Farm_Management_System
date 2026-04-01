@@ -1,386 +1,236 @@
+{% extends 'homepage/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Crop Disease Analysis</title>
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: "Poppins", sans-serif;
-      }
-      body {
-        background-color: #0a0a0a;
-        color: #fff;
-        min-height: 100vh;
-      }
 
-      /* ==================== BACKGROUND ==================== */
-      .page-bg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        background-image: url("{% static 'images/bg_crops.png' %}");
-        background-size: cover;
-        background-position: center;
-        opacity: 0.3;
-      }
+{% block page_title %}AI Crop Disease Analysis{% endblock %}
+{% block page_subtitle %}Upload a clear image of a crop leaf to detect diseases instantly using natural AI patterns.{% endblock %}
 
-      /* ==================== HEADER ==================== */
-      .header {
-        position: relative;
-        text-align: center;
-        padding: 30px 20px;
-        background: linear-gradient(135deg, rgba(27, 94, 32, 0.6), rgba(46, 125, 50, 0.5));
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 40px;
-      }
-      .header h1 {
-        font-weight: 600;
-        font-size: 28px;
-        margin-bottom: 8px;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-      }
-      .header p {
-        font-size: 15px;
-        color: rgba(255, 255, 255, 0.85);
-      }
-      .back-btn {
-        position: absolute;
-        left: 30px;
-        top: 50%;
-        transform: translateY(-50%);
-        display: inline-flex;
-        align-items: center;
-        padding: 10px 20px;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #fff;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-      }
-      .back-btn:hover {
-        background: #4caf50;
-        border-color: #4caf50;
-        color: white;
-        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.5);
-      }
-      .back-btn i {
-        margin-right: 8px;
-        font-size: 20px;
-      }
-
-      /* ==================== CARDS ==================== */
-      .glass-card {
-        background: rgba(20, 30, 40, 0.5);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
+{% block content %}
+<style>
+    .glass-card {
+        background: var(--surface);
+        border: 1px solid var(--border-color);
         border-radius: 20px;
         padding: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
         margin-bottom: 30px;
-      }
-      .glass-card h2 {
+        transition: 0.3s;
+    }
+    .glass-card:hover {
+        border-color: var(--primary-light);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
+    .glass-card h2 {
         font-size: 22px;
-        color: #a5d6a7;
+        font-weight: 800;
+        color: var(--primary);
         margin-bottom: 20px;
-        border-bottom: 1px solid rgba(165, 214, 167, 0.3);
+        border-bottom: 1px solid var(--border-color);
         padding-bottom: 10px;
         display: flex;
         align-items: center;
-      }
-      .glass-card h2 i {
-        margin-right: 10px;
-      }
-
-      /* ==================== FORM ==================== */
-      .scan-box-container {
-        text-align: center;
-      }
-      .scan-box-container .form-control {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px dashed rgba(255, 255, 255, 0.3);
-        color: white;
+    }
+    .glass-card h2 i { margin-right: 10px; }
+    
+    .scan-box-container .form-control {
+        background: var(--bg-input);
+        border: 1px dashed var(--border-color);
+        color: var(--text-main);
         padding: 15px;
         border-radius: 12px;
-      }
-      .upload-container .form-control:focus {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: #a5d6a7;
-        box-shadow: 0 0 10px rgba(165, 214, 167, 0.3);
-      }
-      .btn-scan {
-        background: linear-gradient(135deg, #43a047, #2e7d32);
+        font-weight: 500;
+    }
+    .btn-scan {
+        background: var(--primary);
         border: none;
         color: white;
-        padding: 12px 30px;
+        padding: 14px 30px;
         font-size: 16px;
-        border-radius: 30px;
+        border-radius: 14px;
         margin-top: 20px;
-        font-weight: 500;
+        font-weight: 700;
         transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4);
-      }
-      .btn-scan:hover {
+        box-shadow: 0 4px 12px rgba(0, 204, 0, 0.2);
+        width: 100%;
+    }
+    .btn-scan:hover {
+        background: var(--secondary);
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(46, 125, 50, 0.6);
-        background: linear-gradient(135deg, #4caf50, #388e3c);
-      }
-
-      /* ==================== RESULTS ==================== */
-      .result-item {
+        box-shadow: 0 8px 20px rgba(0, 204, 0, 0.3);
+    }
+    
+    .result-item {
         margin-bottom: 15px;
-        background: rgba(0, 0, 0, 0.3);
+        background: var(--bg-input);
         padding: 15px 20px;
-        border-radius: 12px;
-        border-left: 4px solid #43a047;
-      }
-      .result-label {
+        border-radius: 14px;
+        border-left: 4px solid var(--primary);
+        border: 1px solid var(--border-color);
+        border-left-width: 6px;
+    }
+    .result-label {
         font-size: 12px;
         text-transform: uppercase;
-        color: #a5d6a7;
+        color: var(--text-muted);
+        font-weight: 700;
         letter-spacing: 1px;
         margin-bottom: 5px;
-      }
-      .result-value {
+    }
+    .result-value {
         font-size: 18px;
-        font-weight: 500;
-      }
-      .feature-badge {
+        font-weight: 700;
+        color: var(--text-main);
+    }
+    .feature-badge {
         display: inline-block;
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: var(--primary-light);
+        color: var(--primary);
         padding: 8px 15px;
         border-radius: 20px;
         margin: 5px;
         font-size: 13px;
-        transition: all 0.3s;
-      }
-      .feature-badge:hover {
-        background: rgba(255, 255, 255, 0.2);
-        border-color: #a5d6a7;
-      }
-      .feature-badge strong {
-        color: #a5d6a7;
-      }
-
-      .preview-img {
+        font-weight: 700;
+        border: 1px solid rgba(0, 204, 0, 0.1);
+    }
+    .preview-img {
         max-width: 100%;
         max-height: 300px;
-        border-radius: 12px;
-        border: 2px solid rgba(255,255,255,0.2);
+        border-radius: 16px;
+        border: 2px solid var(--primary);
         margin-bottom: 20px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-      }
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+</style>
 
-      /* Error Alert */
-      .error-alert {
-        background: rgba(211, 47, 47, 0.8);
-        border-left: 4px solid #ff5252;
-        color: white;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="page-bg"></div>
-
-    <div class="header">
-      <a href="{% url 'homepage:mainpage' %}" class="back-btn"><i class='bx bx-arrow-back'></i> Dashboard</a>
-      <h1><i class='bx bx-scan'></i> AI Crop Disease Analysis</h1>
-      <p>Upload a clear image of a crop leaf (Rice, Tomato, Corn, or Potato) to detect diseases instantly.</p>
-    </div>
-
-    <div class="container" style="padding-top: 20px;">
-      {% if error %}
-      <div class="alert error-alert alert-dismissible fade show" role="alert">
-        <i class='bx bx-error-circle'></i> {{ error }}
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-      {% endif %}
-
-      <div class="row justify-content-center mt-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-{% if result %}12{% else %}1{% endif %} gap-8">
         <!-- Upload Section -->
-        <div class="col-12 col-md-10 col-lg-{% if result %}4{% else %}8{% endif %}">
-          <div class="glass-card scan-box-container">
-            <h2><i class='bx bx-upload'></i> Upload Leaf Image</h2>
-            <form action="{% url 'homepage:crop-disease-analysis' %}" method="POST" enctype="multipart/form-data">
-              {% csrf_token %}
-              <div class="mb-3 text-start">
-                <label for="plant_type" class="form-label text-light mb-1" style="font-size: 14px;">Select Crop Type</label>
-                <select class="form-control" name="plant_type" id="plant_type" required>
-                  <option value="" disabled selected style="color: black;">Choose crop...</option>
-                  <optgroup label="Major Field Crops" style="color: black;">
-                    <option value="rice">Rice</option>
-                    <option value="wheat">Wheat</option>
-                    <option value="maize">Maize (Corn)</option>
-                    <option value="millets">Millets</option>
-                    <option value="barley">Barley</option>
-                    <option value="oats">Oats</option>
-                  </optgroup>
-                  <optgroup label="Pulses & Oilseeds" style="color: black;">
-                    <option value="lentils">Lentils</option>
-                    <option value="chickpeas">Chickpeas</option>
-                    <option value="moong">Moong</option>
-                    <option value="peas">Peas</option>
-                    <option value="soybean">Soybean</option>
-                    <option value="mustard">Mustard</option>
-                    <option value="groundnut">Groundnut</option>
-                    <option value="sunflower">Sunflower</option>
-                    <option value="castor">Castor</option>
-                  </optgroup>
-                  <optgroup label="Fiber & Industrial Crops" style="color: black;">
-                    <option value="cotton">Cotton</option>
-                    <option value="sugarcane">Sugarcane</option>
-                    <option value="jute">Jute</option>
-                    <option value="tobacco">Tobacco</option>
-                  </optgroup>
-                  <optgroup label="Plantation & Beverage" style="color: black;">
-                    <option value="tea">Tea</option>
-                    <option value="coffee">Coffee</option>
-                    <option value="rubber">Rubber</option>
-                    <option value="coconut">Coconut</option>
-                  </optgroup>
-                  <optgroup label="Vegetables, Fruits" style="color: black;">
-                    <option value="potato">Potato</option>
-                    <option value="onion">Onion</option>
-                    <option value="tomato">Tomato</option>
-                    <option value="cauliflower">Cauliflower</option>
-                    <option value="garlic">Garlic</option>
-                    <option value="mango">Mango</option>
-                    <option value="banana">Banana</option>
-                    <option value="grapes">Grapes</option>
-                    <option value="citrus">Citrus (Sweet lime)</option>
-                  </optgroup>
-                  <optgroup label="Specialty Crops" style="color: black;">
-                    <option value="spices">Spices (Pepper, Turmeric)</option>
-                    <option value="medicinal">Medicinal herbs</option>
-                    <option value="tapioca">Tapioca</option>
-                  </optgroup>
-                  <optgroup label="Alternative Crops" style="color: black;">
-                    <option value="berries">Berries</option>
-                    <option value="bamboo">Bamboo</option>
-                    <option value="cactus">Cactus</option>
-                    <option value="rhubarb">Rhubarb</option>
-                  </optgroup>
-                </select>
-              </div>
-              <div class="mb-3 text-start">
-                <label for="image" class="form-label text-light mb-1" style="font-size: 14px;">Upload Leaf Image</label>
-                <input class="form-control" type="file" id="image" name="image" accept="image/*" required onchange="previewFile()">
-              </div>
-              <img id="preview" class="preview-img" style="display:none;" />
-              <button type="submit" class="btn-scan"><i class='bx bx-search-alt-2'></i> Analyze Leaf</button>
-            </form>
-          </div>
+        <div class="{% if result %}lg:col-span-4{% else %}max-w-2xl mx-auto w-full{% endif %}">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                <h2 class="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-3">
+                    <div class="p-2 bg-green-100 rounded-lg text-green-600">
+                        <i class='bx bx-upload text-2xl'></i>
+                    </div>
+                    Upload Leaf Image
+                </h2>
+                
+                <form action="{% url 'homepage:crop-disease-analysis' %}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    <div>
+                        <label for="plant_type" class="block text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Select Crop Type</label>
+                        <select class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-semibold focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all" name="plant_type" id="plant_type" required>
+                            <option value="" disabled selected>Choose crop...</option>
+                            <option value="rice">Rice</option>
+                            <option value="wheat">Wheat</option>
+                            <option value="maize">Maize (Corn)</option>
+                            <option value="potato">Potato</option>
+                            <option value="tomato">Tomato</option>
+                            <option value="onion">Onion</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="image" class="block text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Leaf Image</label>
+                        <input class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" type="file" id="image" name="image" accept="image/*" required onchange="previewFile()">
+                    </div>
+
+                    <div class="text-center pt-2">
+                        <img id="preview" class="max-w-full h-auto rounded-xl border-2 border-green-500 shadow-lg hidden mx-auto" />
+                    </div>
+
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-green-200 transition-all flex items-center justify-center gap-2">
+                        <i class='bx bx-search-alt-2 text-xl'></i> Analyze Leaf
+                    </button>
+                </form>
+            </div>
         </div>
 
         <!-- Results Section -->
         {% if result %}
-        <div class="col-lg-8">
-          <div class="glass-card">
-            <h2><i class='bx bx-chart'></i> Analysis Report</h2>
-            
-            <div class="row">
-              <div class="col-md-6">
-                <!-- Primary info -->
-                <div class="result-item">
-                  <div class="result-label">Detected Plant</div>
-                  <div class="result-value text-capitalize">{{ result.plant }}</div>
-                </div>
+        <div class="lg:col-span-8 space-y-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                <h2 class="text-xl font-extrabold text-slate-900 mb-8 flex items-center gap-3">
+                    <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
+                        <i class='bx bx-chart text-2xl'></i>
+                    </div>
+                    Analysis Report
+                </h2>
                 
-                <div class="result-item" {% if 'healthy' in result.disease %}style="border-color: #4caf50;"{% else %}style="border-color: #f44336;"{% endif %}>
-                  <div class="result-label">Disease Status</div>
-                  <div class="result-value text-capitalize" {% if 'healthy' in result.disease %}style="color: #a5d6a7;"{% else %}style="color: #ffab91;"{% endif %}>
-                    {{ result.disease }}
-                  </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Plant Info -->
+                    <div class="p-6 bg-slate-50 rounded-xl border border-slate-100 border-l-4 border-l-green-500">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Detected Plant</div>
+                        <div class="text-xl font-extrabold text-slate-900 capitalize">{{ result.plant }}</div>
+                    </div>
+                    
+                    <!-- Disease Status -->
+                    <div class="p-6 bg-slate-50 rounded-xl border border-slate-100 border-l-4 {% if 'healthy' in result.disease %}border-l-green-500{% else %}border-l-rose-500{% endif %}">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Disease Status</div>
+                        <div class="text-xl font-extrabold {% if 'healthy' in result.disease %}text-green-700{% else %}text-rose-700{% endif %} capitalize">
+                            {{ result.disease }}
+                        </div>
+                    </div>
+
+                    <!-- Confidence Score -->
+                    <div class="p-6 bg-slate-50 rounded-xl border border-slate-100 border-l-4 border-l-blue-500 md:col-span-2">
+                        <div class="flex justify-between items-end mb-3">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">AI Confidence</div>
+                            <div class="text-lg font-black text-blue-600">{{ result.confidence }}%</div>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-3">
+                            <div class="bg-blue-500 h-3 rounded-full transition-all duration-1000" style="width: {{ result.confidence }}%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Treatment Details -->
+                    <div class="p-6 bg-slate-50 rounded-xl border border-slate-100 border-l-4 border-l-sky-500">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Curable?</div>
+                        <div class="text-lg font-bold text-slate-900">{{ result.curable }}</div>
+                    </div>
+
+                    <div class="p-6 bg-slate-50 rounded-xl border border-slate-100 border-l-4 border-l-amber-500">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Recommended Pesticide</div>
+                        <div class="text-lg font-bold text-slate-900">{{ result.pesticide }}</div>
+                    </div>
+
+                    <div class="p-6 bg-slate-50 rounded-xl border border-slate-100 border-l-4 border-l-purple-500 md:col-span-2">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Prevention Guidelines</div>
+                        <div class="text-lg font-semibold text-slate-700 leading-relaxed">{{ result.prevention }}</div>
+                    </div>
                 </div>
 
-                <div class="result-item">
-                  <div class="result-label">AI Confidence</div>
-                  <div class="progress mt-2" style="height: 10px; background: rgba(255,255,255,0.1);">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%;" data-width="{{ result.confidence }}%" aria-valuenow="{{ result.confidence }}" aria-valuemin="0" aria-valuemax="100"></div>
-                  </div>
-                  <script>document.querySelectorAll('.progress-bar[data-width]').forEach(el => el.style.width = el.getAttribute('data-width'));</script>
-                  <div class="text-end mt-1 text-success fw-bold">{{ result.confidence }}%</div>
+                <!-- Features Badges -->
+                <div class="mt-10 pt-8 border-t border-slate-100">
+                    <h4 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i class='bx bx-code-alt'></i> Extracted Image Features
+                    </h4>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="px-4 py-2 bg-green-100 text-green-700 rounded-full text-xs font-black border border-green-200">Green: {{ result.features.green_ratio|floatformat:2 }}</span>
+                        <span class="px-4 py-2 bg-amber-100 text-amber-700 rounded-full text-xs font-black border border-amber-200">Brown: {{ result.features.brown_ratio|floatformat:2 }}</span>
+                        <span class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full text-xs font-black border border-yellow-200">Yellow: {{ result.features.yellow_ratio|floatformat:2 }}</span>
+                        <span class="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-xs font-black border border-blue-200">Spots: {{ result.features.spot_count }}</span>
+                    </div>
                 </div>
-              </div>
-
-              <div class="col-md-6">
-                <!-- Recommendations -->
-                <div class="result-item" style="border-color: #2196f3">
-                  <div class="result-label">Curable?</div>
-                  <div class="result-value">{{ result.curable }}</div>
-                </div>
-
-                <div class="result-item" style="border-color: #ff9800">
-                  <div class="result-label">Recommended Pesticide</div>
-                  <div class="result-value">{{ result.pesticide }}</div>
-                </div>
-
-                <div class="result-item" style="border-color: #9c27b0">
-                  <div class="result-label">Prevention Guidelines</div>
-                  <div class="result-value" style="font-size: 15px">{{ result.prevention }}</div>
-                </div>
-              </div>
             </div>
-
-            <!-- Developer / Exact ML Data View -->
-            <h4 class="mt-4 mb-3" style="font-size: 16px; color: rgba(255,255,255,0.6);"><i class='bx bx-code-alt'></i> Extracted Image Features</h4>
-            <div class="d-flex flex-wrap">
-              <div class="feature-badge"><strong>Green Ratio:</strong> {{ result.features.green_ratio|floatformat:4 }}</div>
-              <div class="feature-badge"><strong>Brown Ratio:</strong> {{ result.features.brown_ratio|floatformat:4 }}</div>
-              <div class="feature-badge"><strong>Yellow Ratio:</strong> {{ result.features.yellow_ratio|floatformat:4 }}</div>
-              <div class="feature-badge"><strong>Spot Count:</strong> {{ result.features.spot_count }}</div>
-              <div class="feature-badge"><strong>Avg Spot Area:</strong> {{ result.features.avg_spot_area|floatformat:2 }} px²</div>
-              <div class="feature-badge"><strong>Aspect Ratio:</strong> {{ result.features.aspect|floatformat:3 }}</div>
-              <div class="feature-badge"><strong>Leaf Area Ratio:</strong> {{ result.features.leaf_area_ratio|floatformat:4 }}</div>
-            </div>
-            
-          </div>
         </div>
         {% endif %}
-      </div>
     </div>
+</div>
 
-    <!-- Bootstrap Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      function previewFile() {
+<script>
+    function previewFile() {
         const preview = document.getElementById('preview');
         const fileInput = document.getElementById('image');
         const file = fileInput.files[0];
         const reader = new FileReader();
 
         reader.addEventListener("load", function () {
-          preview.src = reader.result;
-          preview.style.display = "block";
+            preview.src = reader.result;
+            preview.style.display = "block";
         }, false);
 
         if (file) {
-          reader.readAsDataURL(file);
+            reader.readAsDataURL(file);
         }
-      }
-    </script>
-  </body>
-</html>
+    }
+</script>
+{% endblock %}

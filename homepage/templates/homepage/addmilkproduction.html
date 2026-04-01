@@ -1,15 +1,64 @@
 {% extends 'homepage/base.html' %}
-{% block title %}Add Milk Production — Farm Management System{% endblock %}
-{% block page_title %}Add Milk Production{% endblock %}
+{% block page_title %}Milk Production Entry{% endblock %}
+{% block page_subtitle %}Record daily milk collection and consumption data.{% endblock %}
+
 {% block content %}
-<div class="form-container">
-  <div class="form-card">
-    <h1><i class='bx bx-droplet'></i> Add Milk Production</h1>
-    <form method="POST" action="">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <input type="submit" value="Add Milk Production">
-    </form>
-  </div>
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12">
+        <div class="flex items-center gap-4 mb-10">
+            <div class="p-3 bg-green-100 rounded-2xl text-green-600">
+                <i class='bx bx-plus-circle text-3xl'></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black text-slate-900 leading-tight">Add New Record</h2>
+                <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">For Month: {{ selected_month }}, Year: {{ selected_year }}</p>
+            </div>
+        </div>
+
+        <form method="POST" class="space-y-8">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 gap-8">
+                {% for field in form %}
+                <div class="space-y-2">
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-black text-slate-400 uppercase tracking-widest border-l-4 border-green-500 pl-3">
+                        {{ field.label }}
+                    </label>
+                    <div class="relative">
+                        {% if field.name == 'Record_date' %}
+                            <input type="date" name="{{ field.name }}" id="{{ field.id_for_label }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-900 font-bold focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all" required>
+                        {% else %}
+                            <input type="{% if 'cost' in field.name|lower or 'price' in field.name|lower or 'total' in field.name|lower %}number{% else %}text{% endif %}" 
+                                   name="{{ field.name }}" 
+                                   id="{{ field.id_for_label }}" 
+                                   step="0.01"
+                                   placeholder="Enter {{ field.label|lower }}..."
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-slate-900 font-bold focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                                   {% if field.field.required %}required{% endif %}>
+                        {% endif %}
+                    </div>
+                    {% if field.help_text %}
+                        <p class="text-xs text-slate-400 font-semibold italic">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="text-rose-500 text-xs font-bold mt-1">
+                            {{ field.errors|striptags }}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="pt-8 border-t border-slate-100 flex flex-col sm:flex-row gap-4">
+                <button type="submit" class="flex-grow bg-green-600 hover:bg-green-700 text-white font-extrabold py-5 rounded-2xl shadow-xl shadow-green-100 transition-all flex items-center justify-center gap-3">
+                    <i class='bx bx-check-circle text-2xl'></i>
+                    Save Production Record
+                </button>
+                <a href="{% url 'homepage:milk-productionbymonth' selected_year selected_month %}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-black px-8 py-5 rounded-2xl transition-all flex items-center justify-center">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

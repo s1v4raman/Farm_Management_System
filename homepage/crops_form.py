@@ -1,5 +1,5 @@
 from django import forms # type: ignore
-from .models import Crops,Crop_expenses,Crop_sales,Crop_operations # type: ignore
+from .models import Crops,Crop_expenses,Crop_sales # type: ignore
 
 
 class CropsForm(forms.ModelForm):
@@ -14,6 +14,10 @@ class CropsForm(forms.ModelForm):
             "Planting_date",
             "Harvesting_date",
         ]
+        widgets = {
+            'Planting_date': forms.DateInput(attrs={'type': 'date'}),
+            'Harvesting_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 class Crop_expensesForm(forms.ModelForm):
     class Meta:
@@ -22,12 +26,14 @@ class Crop_expensesForm(forms.ModelForm):
             "Expense_date",
             "Expense_type",
             "Expense_description",
-            "Budget",
             "Expense_amount",
             "Supplier",
             "Payment_method",
             "Receipt_number"
         ]
+        widgets = {
+            'Expense_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 class Crop_salesForm(forms.ModelForm):
     class Meta:
@@ -42,12 +48,6 @@ class Crop_salesForm(forms.ModelForm):
             'Invoice_number',
             'Additional_notes'
         ]
-
-class Crop_operationsForm(forms.ModelForm):
-    class Meta:
-        model=Crop_operations
-        fields=[
-            'Operation_date',
-            'Operation_name',
-            'Additional_notes'
-        ]
+        widgets = {
+            'Sale_date': forms.DateInput(attrs={'type': 'date'}),
+        }

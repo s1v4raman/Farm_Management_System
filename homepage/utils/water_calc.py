@@ -17,16 +17,28 @@ CROP_WATER_NEEDS_LPA = {
 
 CROP_CHOICES = [(k, k) for k in CROP_WATER_NEEDS_LPA.keys()]
 
-def calculate_irrigation_time(crop, area_acres, flow_rate_lpm):
+def calculate_irrigation_time(crop, area_acres, water_level, flow_rate_lpm):
     """
     Calculates estimated minutes required for ONE irrigation session.
-    Assuming one session requires ~2% of the total seasonal water.
+    Adjusted by current water_level.
     """
     total_seasonal_need = CROP_WATER_NEEDS_LPA.get(crop, 2000000) * float(area_acres)
-    session_need_liters = total_seasonal_need * 0.02 # 2% per session
+    
+    if water_level == 'High':
+        session_percent = 0.005 # 0.5%
+    elif water_level == 'Medium':
+        session_percent = 0.015 # 1.5%
+    elif water_level == 'Low':
+        session_percent = 0.025 # 2.5%
+    elif water_level == 'Dry':
+        session_percent = 0.040 # 4.0%
+    else:
+        session_percent = 0.020 # Default
+
+    session_need_liters = total_seasonal_need * session_percent
     
     if float(flow_rate_lpm) <= 0:
         return 0
         
     minutes_required = session_need_liters / float(flow_rate_lpm)
-    return int(minutes_required)
+    return max(1, int(minutes_required)) if session_need_liters > 0 else 0

@@ -7,9 +7,10 @@ class WaterScheduleForm(forms.ModelForm):
     
     class Meta:
         model = WaterSchedule
-        fields = ['crop', 'field_area', 'water_source_flow_rate', 'mobile_number']
+        fields = ['crop', 'field_area', 'water_level', 'water_source_flow_rate', 'mobile_number']
         widgets = {
             'field_area': forms.NumberInput(attrs={'placeholder': 'e.g., 2.5', 'step': '0.1'}),
+            'water_level': forms.Select(attrs={'class': 'form-control'}),
             'water_source_flow_rate': forms.NumberInput(attrs={'placeholder': 'e.g., 500', 'step': '10'}),
             'mobile_number': forms.TextInput(attrs={'placeholder': '+919876543210', 'type': 'tel'}),
         }

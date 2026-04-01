@@ -1,0 +1,111 @@
+{% extends 'homepage/base.html' %}
+{% load static %}
+
+{% block page_title %}User Profile{% endblock %}
+{% block page_subtitle %}Manage your account information and preferences.{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-8">
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+        <!-- Profile Header -->
+        <div class="bg-[#2d3436] p-8 md:p-12 relative">
+            <div class="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                <div class="w-24 h-24 md:w-32 md:h-32 rounded-full bg-green-500 border-4 border-[#3d4446] flex items-center justify-center text-4xl md:text-5xl font-bold text-white shadow-xl">
+                    {{ user.username|make_list|first|upper }}
+                </div>
+                <div class="text-center md:text-left">
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-2">{{ user.get_full_name|default:user.username }}</h1>
+                    <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                        <span class="px-3 py-1 rounded-full bg-[rgba(16,185,129,0.2)] text-green-400 text-sm font-semibold border border-[rgba(16,185,129,0.3)]">
+                            {% if user.is_superuser %}Farm Administrator{% elif user.is_staff %}Farmer{% else %}Registered Customer{% endif %}
+                        </span>
+                        <span class="px-3 py-1 rounded-full bg-[rgba(255,255,255,0.1)] text-gray-300 text-sm font-medium">
+                            Joined {{ user.date_joined|date:"M d, Y" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!-- Decorative background element -->
+            <div class="absolute top-0 right-0 p-8 opacity-10">
+                <i class='bx bxs-leaf text-8xl text-green-500'></i>
+            </div>
+        </div>
+
+        <div class="p-8 md:p-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Account Details -->
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <i class='bx bx-user-circle text-green-600'></i>
+                        Account Information
+                    </h2>
+                    <div class="space-y-6">
+                        <div class="flex flex-col">
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Username</label>
+                            <div class="text-lg font-medium text-gray-800">{{ user.username }}</div>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Email Address</label>
+                            <div class="text-lg font-medium text-gray-800">{{ user.email|default:"Not provided" }}</div>
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Current Role</label>
+                            <div class="text-lg font-medium text-gray-800">
+                                {% if user.is_superuser %}Admin{% elif user.is_staff %}Farmer{% else %}Customer{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <i class='bx bx-bolt-circle text-green-600'></i>
+                        Quick Actions
+                    </h2>
+                    <div class="grid grid-cols-1 gap-4">
+                        <a href="{% url 'homepage:settings' %}" class="flex items-center justify-between p-4 rounded-2xl bg-gray-50 border border-gray-100 hover:border-green-300 hover:bg-green-50 transition-all group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-xl text-gray-600 group-hover:text-green-600 shadow-sm">
+                                    <i class='bx bx-cog'></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800">Preferences</div>
+                                    <div class="text-sm text-gray-500">Update system settings</div>
+                                </div>
+                            </div>
+                            <i class='bx bx-chevron-right text-gray-400 group-hover:text-green-600'></i>
+                        </a>
+
+                        <a href="{% url 'authentication:forgot_password' %}" class="flex items-center justify-between p-4 rounded-2xl bg-gray-0 border border-gray-100 hover:border-yellow-300 hover:bg-yellow-50 transition-all group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-xl text-gray-600 group-hover:text-yellow-600 shadow-sm">
+                                    <i class='bx bx-lock-alt'></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800">Security</div>
+                                    <div class="text-sm text-gray-500">Reset your password</div>
+                                </div>
+                            </div>
+                            <i class='bx bx-chevron-right text-gray-400 group-hover:text-yellow-600'></i>
+                        </a>
+
+                        <a href="{% url 'authentication:logout' %}" class="flex items-center justify-between p-4 rounded-2xl bg-red-0 border border-red-50 hover:border-red-300 hover:bg-red-50 transition-all group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-xl text-red-400 group-hover:text-red-600 shadow-sm">
+                                    <i class='bx bx-log-out'></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-gray-800">Logout</div>
+                                    <div class="text-sm text-gray-500">Sign out of your account</div>
+                                </div>
+                            </div>
+                            <i class='bx bx-chevron-right text-gray-400 group-hover:text-red-600'></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

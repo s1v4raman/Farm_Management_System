@@ -1,0 +1,128 @@
+{% extends 'homepage/base.html' %}
+{% load static %}
+
+{% block page_title %}Climate Analysis{% endblock %}
+{% block page_subtitle %}Track real-time global weather conditions and 7-day forecasts.{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <div class="max-w-4xl mx-auto">
+        {% if not show_climate_results %}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-10">
+            <h2 class="text-2xl font-extrabold text-slate-900 mb-8 text-center flex items-center justify-center gap-3">
+                <div class="p-2 bg-green-100 rounded-lg text-green-600">
+                    <i class='bx bx-search-alt text-3xl'></i>
+                </div>
+                Select Region for Climate Data
+            </h2>
+            
+            <form method="GET" action="{% url 'homepage:climate-analysis' %}" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Step 1: Country -->
+                    <div class="space-y-3">
+                        <label for="country" class="flex items-center gap-2 text-sm font-black text-slate-400 uppercase tracking-widest border-l-4 border-green-500 pl-3">
+                            1. Country
+                        </label>
+                        <select id="country" name="country" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-semibold focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all">
+                            <option value="">-- Choose Country --</option>
+                            {% for c in WORLD_REGIONS.keys %}
+                            <option value="{{ c }}" {% if country == c %}selected{% endif %}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Step 2: State -->
+                    <div class="space-y-3 transition-all duration-300 {% if not country %}opacity-30 pointer-events-none{% endif %}">
+                        <label for="state" class="flex items-center gap-2 text-sm font-black text-slate-400 uppercase tracking-widest border-l-4 border-green-500 pl-3">
+                            2. State
+                        </label>
+                        <select id="state" name="state" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-semibold focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all">
+                            <option value="">-- Choose State --</option>
+                            {% if country %}
+                                {% for s in WORLD_REGIONS|get_item:country %}
+                                <option value="{{ s }}" {% if state == s %}selected{% endif %}>{{ s }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <!-- Step 3: District -->
+                    <div class="space-y-3 transition-all duration-300 {% if not state %}opacity-30 pointer-events-none{% endif %}">
+                        <label for="district" class="flex items-center gap-2 text-sm font-black text-slate-400 uppercase tracking-widest border-l-4 border-green-500 pl-3">
+                            3. District
+                        </label>
+                        <select id="district" name="district" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-semibold focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all">
+                            <option value="">-- Choose City --</option>
+                            {% if states_list %}
+                                {% for d in districts_list %}
+                                <option value="{{ d }}" {% if district == d %}selected{% endif %}>{{ d }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% else %}
+        <!-- Climate Results Display -->
+        <div class="space-y-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-4">
+                    <div class="p-3 bg-green-100 rounded-2xl text-green-600">
+                        <i class='bx bx-map-pin text-3xl'></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-900 leading-tight">{{ district }}, {{ state }}</h3>
+                        <p class="text-slate-500 font-bold uppercase tracking-widest text-xs">{{ country }} • REGIONAL OVERVIEW</p>
+                    </div>
+                </div>
+                <a href="{% url 'homepage:climate-analysis' %}?country={{country}}&state={{state}}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-extrabold px-6 py-3 rounded-xl transition-all flex items-center gap-2">
+                    <i class='bx bx-search'></i> Change Region
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {% for data in climate_data %}
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 hover:shadow-xl hover:border-green-400 transition-all duration-300">
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <div class="text-xl font-black text-slate-900">{{ data.weekday }}</div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">{{ data.date }}</div>
+                        </div>
+                        <span class="px-3 py-1 bg-green-50 text-green-700 rounded-lg text-[10px] font-black border border-green-100">{{ data.day_type }}</span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <i class='bx bxs-thermometer text-rose-500 text-xl'></i>
+                                <span class="text-sm font-bold text-slate-600">Max Temp</span>
+                            </div>
+                            <span class="text-lg font-black text-slate-900">{{ data.temp_max }}°C</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <i class='bx bx-cloud-drizzle text-blue-500 text-xl'></i>
+                                <span class="text-sm font-bold text-slate-600">Rainfall</span>
+                            </div>
+                            <span class="text-lg font-black text-slate-900">{{ data.rainfall }}mm</span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <i class='bx bx-wind text-sky-500 text-xl'></i>
+                                <span class="text-sm font-bold text-slate-600">Wind</span>
+                            </div>
+                            <span class="text-lg font-black text-slate-900">{{ data.wind_speed_max }}km/h</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

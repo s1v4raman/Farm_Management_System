@@ -1,0 +1,54 @@
+{% extends 'homepage/base.html' %}
+{% block title %}Milk Production Today — Farm Management System{% endblock %}
+{% block page_title %}Milk Production Today{% endblock %}
+{% block content %}
+<div class="table-container">
+  <div style="margin-bottom: 20px;">
+    <a href="{% url 'homepage:production-dashboard' %}" class="back-link" style="display: inline-flex; align-items: center; gap: 6px; color: #64748b; text-decoration: none; font-weight: 500;">
+        <i class='bx bx-arrow-back'></i> Back to Production
+    </a>
+  </div>
+  <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2><i class='bx bx-calendar-star'></i> Milk Production — Today ({{ selected_year }}-{{ selected_month }}-{{ selected_day }})</h2>
+    <div>
+      <a href="{% url 'homepage:add-milkproductionbymonth' selected_year=selected_year selected_month=selected_month %}" class="btn" style="background: #00cc00; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 700;"><i class='bx bx-plus'></i> Add Record</a>
+    </div>
+  </div>
+  
+  {% if milk_production_records %}
+  <table>
+    <thead>
+      <tr>
+        <th>Animals</th>
+        <th>Morning</th>
+        <th>Midday</th>
+        <th>Evening</th>
+        <th>Total Production</th>
+        <th>Morning Feed</th>
+        <th>Evening Feed</th>
+        <th>Total Feed</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in milk_production_records %}
+      <tr>
+        <td>{{ record.Livestock_number }}</td>
+        <td>{{ record.Morning_production }}</td>
+        <td>{{ record.Midday_production }}</td>
+        <td>{{ record.Evening_production }}</td>
+        <td>{{ record.Total_production }}</td>
+        <td>{{ record.Morning_consumption }}</td>
+        <td>{{ record.Evening_consumption }}</td>
+        <td>{{ record.Total_consumption }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="padding: 40px; text-align: center; color: #64748b; background: white; border-radius: 8px;">
+    <i class='bx bx-info-circle' style="font-size: 2rem; margin-bottom: 10px;"></i>
+    <p>No milk production records found for today.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

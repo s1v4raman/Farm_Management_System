@@ -13,3 +13,6 @@ class FarmExpenseForm(forms.ModelForm):
             'Other_costs',
             'Crop_sale',
         ]
+        widgets = {
+            'Expense_date': forms.DateInput(attrs={'type': 'date'}),
+        }

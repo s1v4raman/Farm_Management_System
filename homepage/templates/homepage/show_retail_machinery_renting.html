@@ -1,0 +1,153 @@
+{% extends 'homepage/base.html' %}
+{% load static %}
+
+{% block page_title %}{% if request.user.is_superuser or request.user.is_staff %}Retail Machinery Management{% else %}Machinery Rentals{% endif %}{% endblock %}
+{% block page_subtitle %}{% if request.user.is_superuser or request.user.is_staff %}Manage machinery inventory and rentals.{% else %}Hire farm equipments and heavy machinery for your needs.{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div>
+            <a href="{% url 'homepage:retail-dashboard' %}" class="inline-flex items-center text-sm font-extrabold text-slate-500 hover:text-green-600 transition-colors mb-2">
+                <i class='bx bx-left-arrow-alt mr-1 text-xl'></i>
+                Back to Retail Market
+            </a>
+            <h1 class="text-3xl font-black text-gray-900 flex items-center gap-3 tracking-tight">
+                <i class='bx bxs-cog text-slate-600 text-4xl animate-spin-slow'></i>
+                {% if request.user.is_superuser or request.user.is_staff %}Machinery Rentals{% else %}Available Machinery{% endif %}
+            </h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative flex items-center w-full max-w-[320px] group">
+                <i class='bx bx-search absolute left-4 text-slate-400 text-xl pointer-events-none group-focus-within:text-green-600 transition-colors z-10'></i>
+                <input type="text" id="product-search" placeholder="Search machinery..." 
+                       class="w-full bg-white border border-slate-200 rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:border-slate-300">
+            </div>
+            {% if request.user.is_superuser or request.user.is_staff %}
+            <a href="{% url 'homepage:add-retail-machinery-renting' %}" class="btn btn-primary">
+                <i class='bx bx-plus'></i> Add Listing
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="product-grid">
+        {% for renting in rentings %}
+        <div class="product-card rounded-3xl border border-slate-100 overflow-hidden transition-all duration-500 flex flex-col bg-white hover:shadow-2xl hover:border-slate-400 group" data-name="{{ renting.Machinery_Used }}">
+            <!-- Product Image Placeholder -->
+            <div class="h-48 flex items-center justify-center relative bg-slate-50 overflow-hidden">
+                <img src="{% if renting.Product_Image %}{{ renting.Product_Image.url }}{% else %}{% static 'images/bg_machinery.png' %}{% endif %}" alt="{{ renting.Machinery_Used }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-all duration-300"></div>
+                <div class="absolute top-4 right-4">
+                    <span class="px-3 py-1.5 rounded-xl border border-green-200 text-[11px] font-black bg-green-50 text-green-600 uppercase tracking-wider backdrop-blur-md">Available</span>
+                </div>
+            </div>
+            
+            <div class="p-6 flex flex-col flex-grow">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-black text-slate-900 truncate pr-2 leading-tight">{{ renting.Machinery_Used }}</h3>
+                    <p class="text-xl font-black text-green-600">₹{{ renting.Rate_Per_Hour }}<span class="text-sm font-normal text-slate-400">/hr</span></p>
+                </div>
+                
+                <div class="text-[14px] text-slate-500 font-bold mb-6 flex-grow leading-relaxed">
+                    <p class="flex items-center gap-2 mb-2">
+                        <i class='bx bx-check-shield text-green-500 text-lg'></i>
+                        {{ renting.Service_Provided }}
+                    </p>
+                    <p class="flex items-center gap-2">
+                        <i class='bx bx-calendar text-slate-400 text-lg'></i>
+                        Listed on {{ renting.Date }}
+                    </p>
+                </div>
+
+                <!-- Actions -->
+                <div class="pt-5 border-t border-slate-100 mt-auto flex gap-3">
+                    {% if request.user.is_superuser or request.user.is_staff %}
+                    <a href="{% url 'homepage:update-retail-machinery-renting' id=renting.id %}" class="flex-grow flex items-center justify-center gap-2 bg-[#00cc00] hover:bg-[#00ab00] text-white font-black py-3 rounded-2xl transition-all duration-300 shadow-md hover:shadow-lg active:scale-95">
+                        <i class='bx bx-edit-alt text-xl'></i>
+                        Edit
+                    </a>
+                    <a href="{% url 'homepage:delete-retail-machinery-renting' id=renting.id %}" class="w-14 flex items-center justify-center bg-red-50 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md active:scale-95" title="Delete listing">
+                        <i class='bx bx-trash text-2xl'></i>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'homepage:add-retail-machinery-renting' %}?machinery_used={{ renting.Machinery_Used|urlencode }}&rate_per_hour={{ renting.Rate_Per_Hour|urlencode }}&service_provided={{ renting.Service_Provided|urlencode }}&seller_id={{ renting.user.id }}" class="btn btn-primary w-full justify-center py-3 text-sm uppercase tracking-widest">
+                        <i class='bx bx-check-square text-xl'></i> Book Now
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-12 text-center text-gray-500 bg-white rounded-xl border border-gray-100">
+            <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <p class="text-lg font-medium text-gray-900">No machinery listed</p>
+            <p>Check back later for available equipment.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Orders Table (Visible to Farmers/Staff) -->
+    {% if request.user.is_superuser or request.user.is_staff %}
+    <div class="mt-12 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-800">Recent Rental Bookings</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-600 font-medium">
+                    <tr>
+                        <th class="px-6 py-4">Booking ID</th>
+                        <th class="px-6 py-4">Renter</th>
+                        <th class="px-6 py-4">Machinery</th>
+                        <th class="px-6 py-4">Hours</th>
+                        <th class="px-6 py-4">Total Amount</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for renting in rentings %}
+                    {% if renting.Customer_Name %} <!-- Only show actual rentals -->
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-gray-900">#BKG-{{ renting.id }}</td>
+                        <td class="px-6 py-4">{{ renting.Customer_Name }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ renting.Machinery_Used }}</td>
+                        <td class="px-6 py-4 text-gray-600">{{ renting.Hours_Rented }}h</td>
+                        <td class="px-6 py-4 font-medium text-gray-900">₹{{ renting.Total_Amount }}</td>
+                        <td class="px-6 py-4">
+                            {% if renting.Payment_Method == 'Cash' %}
+                            <span class="px-2.5 py-1 rounded border border-yellow-500 text-xs font-semibold bg-yellow-50 text-yellow-600">COD</span>
+                            {% else %}
+                            <span class="px-2.5 py-1 rounded border border-blue-500 text-xs font-semibold bg-blue-50 text-blue-600">Paid - {{ renting.Payment_Method }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-gray-800 font-medium">{{ renting.Date }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    document.getElementById('product-search').addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        const cards = document.querySelectorAll('.product-card');
+        
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name').toLowerCase();
+            if (name.includes(query)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}

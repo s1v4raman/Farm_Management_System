@@ -1,0 +1,49 @@
+{% extends 'homepage/base.html' %}
+{% block title %}{% if request.user.is_superuser or request.user.is_staff %}Add Retail Egg Sale{% else %}Buy Eggs{% endif %} — Farm Management System{% endblock %}
+{% block page_title %}{% if request.user.is_superuser or request.user.is_staff %}Add Retail Egg Sale{% else %}Buy Eggs{% endif %}{% endblock %}
+{% block page_subtitle %}{% if request.user.is_superuser or request.user.is_staff %}Record a new egg sale.{% else %}Complete your egg purchase securely.{% endif %}{% endblock %}
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'homepage:show-retail-egg-sales' %}" style="display: inline-flex; align-items: center; font-size: 14px; font-weight: 500; color: #3b82f6; text-decoration: none; transition: 0.3s;">
+        <i class='bx bx-left-arrow-alt' style="margin-right: 4px; font-size: 18px;"></i>
+        Back to Available Eggs
+    </a>
+</div>
+<div class="form-container">
+  <h2>{% if request.user.is_superuser or request.user.is_staff %}<i class='bx bx-plus' style="color: #3b82f6;"></i> Add Retail Egg Sale{% else %}<i class='bx bx-cart-add' style="color: #3b82f6;"></i> Buy Eggs{% endif %}</h2>
+  <form method="POST" class="add-form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form %}
+      {% if field.name == 'Product_Image' and not request.user.is_superuser and not request.user.is_staff %}
+        {# Hide Product_Image field for customers #}
+      {% else %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+        <small class="form-text text-muted">{{ field.help_text }}</small>
+        {% endif %}
+        {% for error in field.errors %}
+        <div class="error-msg">{{ error }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    
+    {% if not request.user.is_superuser and not request.user.is_staff %}
+    <div class="qr-code-section" style="margin-top: 20px; margin-bottom: 20px; padding: 15px; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 8px; text-align: center;">
+      <h3 style="margin-bottom: 10px; font-size: 16px; color: #1e293b; font-weight: bold;"><i class='bx bx-qr-scan'></i> Pay via UPI</h3>
+      <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">If you selected UPI as your payment method, please scan the QR code to complete the payment.</p>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=farmer@upi&pn=Farmer&cu=INR" alt="UPI QR Code" style="margin: 0 auto; border-radius: 8px; border: 4px solid #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    </div>
+    {% endif %}
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit"><i class='bx bx-save'></i> Save</button>
+      <a href="{% url 'homepage:show-retail-egg-sales' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

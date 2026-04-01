@@ -1,37 +1,13 @@
 from django import forms 
-from .models import Livestock, Livestock_production,Milk_production,Eggs_production
-
-class LivestockForm(forms.ModelForm):
-    class Meta:
-        model= Livestock
-        fields=[
-            'Tag_number',
-            'Animal_type',
-            'Age',
-            'Breed',
-
-
-            
-                ]
-
-class Livestock_productionForm(forms.ModelForm):
-    class Meta:
-        model=Livestock_production
-        fields=[
-            'Production_date',
-            'Production_amount',
-            'Feed_consumed',
-            'Comments'
-        ]
+from .models import Milk_production, Eggs_production
 
 class Milk_productionForm(forms.ModelForm):
+    Record_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), help_text='Select the date of production')
+
     class Meta:
         model=Milk_production
 
         fields=[
-            'Year',
-            'Month',
-            'Day',
             'Livestock_number',
             'Morning_production',
             'Midday_production',
@@ -41,13 +17,12 @@ class Milk_productionForm(forms.ModelForm):
         ]
 
 class Egg_productionForm(forms.ModelForm):
+    Record_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), help_text='Select the date of collection')
+
     class Meta:
         model=Eggs_production
 
         fields=[
-            'Year',
-            'Month',
-            'Day',
             'Poultry_number',
             'Morning_egg_collection',
             'Midday_egg_collection',

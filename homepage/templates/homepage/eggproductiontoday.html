@@ -1,0 +1,54 @@
+{% extends 'homepage/base.html' %}
+{% block title %}Egg Production Today — Farm Management System{% endblock %}
+{% block page_title %}Egg Production Today{% endblock %}
+{% block content %}
+<div class="table-container">
+  <div style="margin-bottom: 20px;">
+    <a href="{% url 'homepage:production-dashboard' %}" class="back-link" style="display: inline-flex; align-items: center; gap: 6px; color: #64748b; text-decoration: none; font-weight: 500;">
+        <i class='bx bx-arrow-back'></i> Back to Production
+    </a>
+  </div>
+  <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2><i class='bx bx-cookie'></i> Egg Production — Today ({{ selected_year }}-{{ selected_month }}-{{ selected_day }})</h2>
+    <div>
+      <a href="{% url 'homepage:add-eggproduction' selected_year=selected_year selected_month=selected_month %}" class="btn" style="background: #00cc00; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 700;"><i class='bx bx-plus'></i> Add Record</a>
+    </div>
+  </div>
+  
+  {% if egg_production_records %}
+  <table>
+    <thead>
+      <tr>
+        <th>Poultry Count</th>
+        <th>Morning Coll.</th>
+        <th>Midday Coll.</th>
+        <th>Evening Coll.</th>
+        <th>Total Eggs</th>
+        <th>Morning Feed</th>
+        <th>Evening Feed</th>
+        <th>Total Feed</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in egg_production_records %}
+      <tr>
+        <td>{{ record.Poultry_number }}</td>
+        <td>{{ record.Morning_egg_collection }}</td>
+        <td>{{ record.Midday_egg_collection }}</td>
+        <td>{{ record.Evening_egg_collection }}</td>
+        <td>{{ record.Total_egg_collection }}</td>
+        <td>{{ record.Morning_feeds }}</td>
+        <td>{{ record.Evening_feeds }}</td>
+        <td>{{ record.Total_feeds }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="padding: 40px; text-align: center; color: #64748b; background: white; border-radius: 8px;">
+    <i class='bx bx-info-circle' style="font-size: 2rem; margin-bottom: 10px;"></i>
+    <p>No egg production records found for today.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

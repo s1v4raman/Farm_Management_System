@@ -1,0 +1,29 @@
+{% extends 'homepage/base.html' %}
+{% block title %}Update Retail Egg Sale — Farm Management System{% endblock %}
+{% block page_title %}Update Retail Egg Sale{% endblock %}
+{% block content %}
+<div class="form-container">
+  <h2><i class='bx bx-edit' style="color: #3b82f6;"></i> Update Retail Egg Sale</h2>
+  <form method="POST" class="add-form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+        <small class="form-text text-muted">{{ field.help_text }}</small>
+        {% endif %}
+        {% for error in field.errors %}
+        <div class="error-msg">{{ error }}</div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit"><i class='bx bx-save'></i> Update</button>
+      <a href="{% url 'homepage:show-retail-egg-sales' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

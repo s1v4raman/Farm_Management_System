@@ -12,6 +12,9 @@ class MachineryForm(forms.ModelForm):
             'Operation',
             
         ]
+        widgets = {
+            'Purchase_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 class Machinery_activitesForm(forms.ModelForm):
     class Meta:
@@ -22,6 +25,9 @@ class Machinery_activitesForm(forms.ModelForm):
             'Activity_cost',
             'Description'
         ]
+        widgets = {
+            'Activity_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 class Machinery_maintenanceForm(forms.ModelForm):
     class Meta:
@@ -33,3 +39,6 @@ class Machinery_maintenanceForm(forms.ModelForm):
             'Cost',
             'Description'
         ]
+        widgets = {
+            'Date': forms.DateInput(attrs={'type': 'date'}),
+        }

@@ -1,204 +1,126 @@
-{% extends 'homepage/home.html' %}
+{% extends 'homepage/base.html' %}
 {% load static %}
 
+{% block page_title %}Smart Crop Recommender{% endblock %}
+{% block page_subtitle %}AI-powered crop suggestions based on your soil and environmental conditions.{% endblock %}
+
 {% block content %}
-<style>
-  /* Crop Recommender Layout */
-  .crop-dashboard {
-    padding: 60px 32px 80px;
-    max-width: 800px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 5;
-  }
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-{% if recommendations %}12{% else %}1{% endif %} gap-8">
+        
+        <!-- Input Form Section -->
+        <div class="{% if recommendations %}lg:col-span-4{% else %}max-w-2xl mx-auto w-full{% endif %}">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                <h2 class="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-3">
+                    <div class="p-2 bg-green-100 rounded-lg text-green-600">
+                        <i class='bx bx-test-tube text-2xl'></i>
+                    </div>
+                    Soil Parameters
+                </h2>
+                
+                <form method="POST" action="{% url 'homepage:crop-recommendation' %}" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label for="soil" class="block text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Soil Type</label>
+                        <select id="soil" name="soil" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-semibold focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all">
+                            <option value="" disabled selected>Choose soil type...</option>
+                            <option value="Alluvial">Alluvial (Loamy)</option>
+                            <option value="Black">Black (Clayey)</option>
+                            <option value="Red">Red (Sandy)</option>
+                            <option value="Laterite">Laterite</option>
+                            <option value="Marshy">Marshy / Peaty</option>
+                        </select>
+                    </div>
 
-  .crop-header {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-  .crop-header h1 {
-    font-size: 32px;
-    font-weight: 600;
-    color: #0f172a;
-    letter-spacing: -0.5px;
-  }
-  .crop-header p {
-    font-size: 16px;
-    color: #64748b;
-    margin-top: 8px;
-  }
+                    <div>
+                        <label for="season" class="block text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Current Season</label>
+                        <select id="season" name="season" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-semibold focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all">
+                            <option value="" disabled selected>Choose season...</option>
+                            <option value="Summer">Summer (Kharif)</option>
+                            <option value="Winter">Winter (Rabi)</option>
+                            <option value="Rainy">Rainy (Monsoon)</option>
+                            <option value="Autumn">Autumn</option>
+                        </select>
+                    </div>
 
-  /* Main Form Card */
-  .recommender-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    padding: 40px;
-  }
+                    <div>
+                        <label for="water" class="block text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Water Availability</label>
+                        <select id="water" name="water" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-semibold focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all">
+                            <option value="" disabled selected>Choose water level...</option>
+                            <option value="High">High (Abundant)</option>
+                            <option value="Moderate">Moderate (Normal)</option>
+                            <option value="Low">Low (Drought prone)</option>
+                        </select>
+                    </div>
 
-  .form-group {
-    margin-bottom: 24px;
-    text-align: left;
-  }
-  .form-group label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: #475569;
-    margin-bottom: 8px;
-  }
-  .form-group select {
-    width: 100%;
-    padding: 14px 16px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 15px;
-    color: #0f172a;
-    background: #f8fafc;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
-    outline: none;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 16px center;
-    background-size: 16px;
-  }
-  .form-group select:focus {
-    border-color: #3b82f6;
-    background: #ffffff;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-  }
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-extrabold py-4 rounded-xl shadow-lg shadow-green-200 transition-all flex items-center justify-center gap-2">
+                        <i class='bx bx-sparkles text-xl'></i> Get Recommendations
+                    </button>
+                </form>
+            </div>
+        </div>
 
-  .submit-btn {
-    width: 100%;
-    padding: 16px;
-    background: #10b981;
-    color: #ffffff;
-    border: none;
-    border-radius: 12px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-  }
-  .submit-btn:hover {
-    background: #059669;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
-  }
+        <!-- Recommendations Results Section -->
+        {% if recommendations %}
+        <div class="lg:col-span-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 h-full">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-3">
+                        <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
+                            <i class='bx bx-award text-2xl'></i>
+                        </div>
+                        Recommended Crops
+                    </h2>
+                    <span class="px-4 py-1 bg-green-100 text-green-700 rounded-full text-xs font-black border border-green-200">MATCH FOUND</span>
+                </div>
 
-  /* Result Box */
-  .result-box {
-    margin-top: 30px;
-    padding: 24px;
-    background: #ecfdf5;
-    border: 1px dashed #34d399;
-    border-radius: 16px;
-    text-align: center;
-    animation: fadeIn 0.5s ease;
-  }
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {% for crop in recommendations %}
+                    <div class="group relative overflow-hidden bg-slate-50 rounded-2xl border border-slate-100 p-8 hover:shadow-xl hover:border-green-400 transition-all duration-500">
+                        <div class="flex items-center gap-6 mb-4">
+                            <div class="w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-4xl shadow-sm group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                                🌱
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-900 capitalize">{{ crop.name|default:crop }}</h3>
+                                <p class="text-sm font-bold text-green-600">Highly Compatible</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-slate-500 font-semibold leading-relaxed mb-6">
+                            Based on your {{ soil }} soil and {{ season }} season conditions, this crop offers the best yield potential and resource efficiency.
+                        </p>
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+                        <div class="flex items-center justify-between pt-6 border-t border-slate-200">
+                            <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Confidence Score</span>
+                            <span class="text-lg font-black text-slate-900">High</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
 
-  .result-title {
-    font-size: 14px;
-    color: #059669;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-  }
-  .result-items {
-    font-size: 24px;
-    font-weight: 700;
-    color: #0f172a;
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .crop-pill {
-    background: #ffffff;
-    border: 2px solid #10b981;
-    color: #10b981;
-    padding: 6px 16px;
-    border-radius: 30px;
-    font-size: 18px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-  }
+                <!-- Guidance Note -->
+                <div class="mt-12 p-6 bg-blue-50 rounded-xl border border-blue-100 flex gap-4">
+                    <i class='bx bxs-info-circle text-blue-500 text-2xl'></i>
+                    <p class="text-sm font-semibold text-blue-700 leading-relaxed">
+                        <strong>Expert Tip:</strong> Ensure proper land preparation and use high-quality seeds for these crops to maximize your harvest. Check the "Market Prices" module for current commodity values.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% elif submitted %}
+        <div class="lg:col-span-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-20 text-center">
+                <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class='bx bx-search-alt text-4xl text-slate-400'></i>
+                </div>
+                <h3 class="text-xl font-extrabold text-slate-900 mb-2">No direct matches found</h3>
+                <p class="text-slate-500 font-medium">Try adjusting your soil type or water availability settings for more options.</p>
+            </div>
+        </div>
+        {% endif %}
 
-</style>
-
-<div class="crop-dashboard">
-  <div class="crop-header">
-    <h1>Smart Crop Recommender 🌱</h1>
-    <p>Find the best crop to maximize your yield based on soil, season, and water availability.</p>
-  </div>
-
-  <div class="recommender-card">
-    <form method="POST" action="{% url 'homepage:crop-recommendation' %}">
-      {% csrf_token %}
-      
-      <div class="form-group">
-        <label>Soil Type</label>
-        <select name="soil" required>
-          <option value="" disabled selected>Select Soil Parameter</option>
-          <option value="Red">Red Soil</option>
-          <option value="Black">Black Soil</option>
-          <option value="Alluvial">Alluvial Soil</option>
-          <option value="Loamy">Loamy Soil</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Season</label>
-        <select name="season" required>
-          <option value="" disabled selected>Select Current Season</option>
-          <option value="Summer">Summer (Zaid)</option>
-          <option value="Winter">Winter (Rabi)</option>
-          <option value="Monsoon">Monsoon (Kharif)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Water Availability</label>
-        <select name="water" required>
-          <option value="" disabled selected>Select Water Supply</option>
-          <option value="High">High (Abundant Irrigation)</option>
-          <option value="Medium">Medium (Moderate Rain/Irrigation)</option>
-          <option value="Low">Low (Dry/Rainfed)</option>
-        </select>
-      </div>
-
-      <button type="submit" class="submit-btn">
-        <i class='bx bx-brain'></i> Get Recommendations
-      </button>
-    </form>
-
-    {% if submitted %}
-    <div class="result-box">
-      <div class="result-title"><i class='bx bx-check-circle'></i> Recommended Crops</div>
-      <div class="result-items">
-        {% for crop in recommendations %}
-          <div class="crop-pill">{{ crop }}</div>
-        {% empty %}
-          <div class="crop-pill">General Millets</div>
-        {% endfor %}
-      </div>
     </div>
-    {% endif %}
-
-  </div>
 </div>
 {% endblock %}

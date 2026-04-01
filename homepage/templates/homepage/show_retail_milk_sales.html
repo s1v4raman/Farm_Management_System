@@ -1,0 +1,157 @@
+{% extends 'homepage/base.html' %}
+{% load static %}
+
+{% block page_title %}{% if request.user.is_superuser or request.user.is_staff %}Retail Milk Management{% else %}Fresh Dairy Milk{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-4">
+    <div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div>
+            <a href="{% url 'homepage:retail-dashboard' %}" class="inline-flex items-center text-sm font-extrabold text-slate-500 hover:text-blue-600 transition-colors mb-2">
+                <i class='bx bx-left-arrow-alt mr-1 text-xl'></i>
+                Back to Retail Market
+            </a>
+            <h1 class="text-3xl font-black text-gray-900 flex items-center gap-3 tracking-tight">
+                <i class='bx bx-water text-blue-600 text-4xl'></i>
+                {% if request.user.is_superuser or request.user.is_staff %}Milk Inventory & Sales{% else %}Available Fresh Milk{% endif %}
+            </h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="relative flex items-center w-full max-w-[320px] group">
+                <i class='bx bx-search absolute left-4 text-slate-400 text-xl pointer-events-none group-focus-within:text-blue-600 transition-colors z-10'></i>
+                <input type="text" id="product-search" placeholder="Search dairy..." 
+                       class="w-full bg-white border border-slate-200 rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:border-slate-300">
+            </div>
+            {% if request.user.is_superuser or request.user.is_staff %}
+            <a href="{% url 'homepage:add-retail-milk-sale' %}" class="btn btn-primary">
+                <i class='bx bx-plus'></i> Add Listing
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- Products Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="product-grid">
+        {% for sale in sales %}
+        <div class="product-card rounded-3xl border border-slate-100 overflow-hidden transition-all duration-500 flex flex-col bg-white hover:shadow-2xl hover:border-blue-400 group" data-name="Farm Fresh Milk">
+            <!-- Product Image Placeholder -->
+            <div class="h-48 flex items-center justify-center relative bg-slate-50 overflow-hidden">
+                <img src="{% if sale.Product_Image %}{{ sale.Product_Image.url }}{% else %}{% static 'images/bg_milk.png' %}{% endif %}" alt="Farm Fresh Milk" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-all duration-300"></div>
+                <div class="absolute top-4 right-4">
+                    {% if sale.Quantity_Liters > 50 %}
+                        <span class="px-3 py-1.5 rounded-xl border border-green-200 text-[11px] font-black bg-green-50 text-green-600 uppercase tracking-wider backdrop-blur-md">In Stock</span>
+                    {% elif sale.Quantity_Liters > 10 %}
+                        <span class="px-3 py-1.5 rounded-xl border border-orange-200 text-[11px] font-black bg-orange-50 text-orange-600 uppercase tracking-wider backdrop-blur-md">Low Stock</span>
+                    {% else %}
+                        <span class="px-3 py-1.5 rounded-xl border border-red-200 text-[11px] font-black bg-red-50 text-red-600 uppercase tracking-wider backdrop-blur-md">Critical</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="p-6 flex flex-col flex-grow">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-black text-slate-900 truncate pr-2 leading-tight">Farm Fresh Milk</h3>
+                    <p class="text-xl font-black text-blue-600">₹{{ sale.Price_Per_Liter }}<span class="text-sm font-normal text-slate-400">/L</span></p>
+                </div>
+                
+                <div class="text-[14px] text-slate-500 font-bold mb-6 flex-grow leading-relaxed">
+                    <p class="flex items-center gap-2 mb-2">
+                        <i class='bx bx-droplet text-blue-400 text-lg'></i>
+                        Volume: <span class="text-slate-900">{{ sale.Quantity_Liters }} Liters Available</span>
+                    </p>
+                    <p class="flex items-center gap-2">
+                        <i class='bx bx-calendar text-slate-400 text-lg'></i>
+                        Listed on {{ sale.Date }}
+                    </p>
+                </div>
+
+                <!-- Actions -->
+                <div class="pt-5 border-t border-slate-100 mt-auto flex gap-3">
+                    {% if request.user.is_superuser or request.user.is_staff %}
+                    <a href="{% url 'homepage:update-retail-milk-sale' id=sale.id %}" class="flex-grow flex items-center justify-center gap-2 bg-[#00cc00] hover:bg-[#00ab00] text-white font-black py-3 rounded-2xl transition-all duration-300 shadow-md hover:shadow-lg active:scale-95">
+                        <i class='bx bx-edit-alt text-xl'></i>
+                        Edit
+                    </a>
+                    <a href="{% url 'homepage:delete-retail-milk-sale' id=sale.id %}" class="w-14 flex items-center justify-center bg-red-50 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md active:scale-95" title="Delete listing">
+                        <i class='bx bx-trash text-2xl'></i>
+                    </a>
+                    {% else %}
+                    <a href="{% url 'homepage:add-retail-milk-sale' %}?price_per_liter={{ sale.Price_Per_Liter|urlencode }}" class="btn btn-primary w-full justify-center py-3 text-sm uppercase tracking-widest">
+                        <i class='bx bx-cart-add text-xl'></i> Buy Now
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-16 text-center text-[var(--text-muted)] bg-[var(--bg-card)] rounded-xl border border-[var(--border)]">
+            <i class='bx bx-droplet text-6xl mb-4 opacity-50 text-[#3b82f6]'></i>
+            <p class="text-lg font-medium text-[var(--text-primary)] mb-1">No milk available</p>
+            <p class="text-[14px]">Wait for the next fresh milking batch.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Orders Table (Visible to Farmers/Staff) -->
+    {% if request.user.is_superuser or request.user.is_staff %}
+    <div class="mt-12 table-container">
+        <div class="table-header">
+            <h2><i class='bx bx-receipt'></i> Recent Dairy Orders</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Buyer</th>
+                        <th>Liters</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in sales %}
+                    {% if sale.Customer_Name %} <!-- Only show actual purchases -->
+                    <tr>
+                        <td class="font-medium text-[var(--text-primary)]">#ORD-{{ sale.id }}</td>
+                        <td>{{ sale.Customer_Name }}</td>
+                        <td class="text-[var(--text-secondary)]">{{ sale.Quantity_Liters }} L</td>
+                        <td class="font-medium text-[#3b82f6]">₹{{ sale.Total_Amount }}</td>
+                        <td>
+                            {% if sale.Payment_Method == 'Cash' %}
+                            <span class="px-2.5 py-1 rounded border border-[var(--warning)] text-xs font-semibold bg-[rgba(245,158,11,0.1)] text-[#f59e0b]">COD</span>
+                            {% else %}
+                            <span class="px-2.5 py-1 rounded border border-[var(--info)] text-xs font-semibold bg-[rgba(59,130,246,0.1)] text-[#3b82f6]">Paid - {{ sale.Payment_Method }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ sale.Date }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    document.getElementById('product-search').addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        const cards = document.querySelectorAll('.product-card');
+        
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name').toLowerCase();
+            if (name.includes(query)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}
