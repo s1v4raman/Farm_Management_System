@@ -297,7 +297,7 @@ def get_7_day_weather_forecast(country, state, district):
                 "wind_speed": current.get("wind_speed_10m", "--"),
                 "time": current.get("time", "").replace("T", " ")
             },
-            "forecast": []
+            "daily": []
         }
         
         # Process the 7 days (index 0 is yesterday, index 1 is today, 2-6 are future)
@@ -313,7 +313,7 @@ def get_7_day_weather_forecast(country, state, district):
             date_obj = datetime.strptime(times[i], "%Y-%m-%d")
             weekday = date_obj.strftime("%A")
                 
-            response["forecast"].append({
+            response["daily"].append({
                 "date": times[i],
                 "weekday": weekday,
                 "day_type": day_type,

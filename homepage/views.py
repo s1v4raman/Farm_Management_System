@@ -198,6 +198,12 @@ def daily_climate(request):
         'states_list': states_list, 'districts_list': districts_list
     })
 
+def api_weather(request):
+    """JSON endpoint for weather data."""
+    data = get_dashboard_weather()
+    return JsonResponse(data if data else {"error": "No data"})
+
+@csrf_exempt
 def climate_analysis(request):
     c, s, d = request.GET.get('country'), request.GET.get('state'), request.GET.get('district')
     q = request.GET.get('q') # Support dynamic search query
@@ -220,7 +226,7 @@ def climate_analysis(request):
             s = loc.get('state', s)
             c = loc.get('country', c)
 
-            # Prepare chart data
+            # Prepare chart data (w['daily'] is now correct)
             chart_labels = [day['weekday'][:3] for day in w['daily']]
             chart_temps = [day['temp_max'] for day in w['daily']]
             chart_rain = [day['rainfall'] for day in w['daily']]
@@ -576,34 +582,7 @@ def Update_egg_production_by_month(request, selected_year, selected_month, Day):
     return render(request, 'homepage/updateeggproduction.html', {'form': form, 'egg_production_record': r, 'selected_year': selected_year, 'selected_month': selected_month})
 
 # --- OTHERS ---
-@csrf_exempt
-def climate_analysis(request):
-    c, s, d = request.GET.get('country'), request.GET.get('state'), request.GET.get('district')
-    cl_data, show = None, False
-    
-    # Lists for dropdown population
-    states_list = []
-    districts_list = []
-    
-    if c:
-        states_list = list(WORLD_REGIONS.get(c, {}).keys())
-    if c and s:
-        districts_list = list(WORLD_REGIONS.get(c, {}).get(s, {}).keys())
-        
-    if c and d:
-        cl_data = get_7_day_weather_forecast(c, s or "", d)
-        if cl_data: show = True
-        
-    return render(request, "homepage/climate_analysis.html", {
-        "climate_data": cl_data, 
-        "show_climate_results": show, 
-        "country": c, 
-        "state": s, 
-        "district": d, 
-        "WORLD_REGIONS": WORLD_REGIONS,
-        "states_list": states_list,
-        "districts_list": districts_list
-    })
+# duplicate removed
 
 @login_required
 def manage_contact(request):
