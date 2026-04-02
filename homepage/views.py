@@ -169,6 +169,35 @@ def crop_disease_analysis(request):
             except Exception as e: error = f"Failed: {e}"
     return render(request, "homepage/crop_disease_analysis.html", {"result": result, "error": error})
 
+def daily_climate(request):
+    c, s, d = request.GET.get('country'), request.GET.get('state'), request.GET.get('district')
+    
+    states_list = []
+    districts_list = []
+    if c:
+        states_list = list(WORLD_REGIONS.get(c, {}).keys())
+    if c and s:
+        districts_list = list(WORLD_REGIONS.get(c, {}).get(s, {}).keys())
+
+    if d:
+        w = get_7_day_weather_forecast(c or "India", s or "", d)
+        if w:
+            # daily_climate template expects a list in 'weather_data'
+            # We take the 'current' weather and wrap it in a list
+            current = w.get('current')
+            if current:
+                current['city'] = w.get('resolved_location', {}).get('city', d)
+            
+            return render(request, 'homepage/daily_climate.html', {
+                'weather_data': [current] if current else [],
+                'country': c, 'state': s, 'district': d, 'show_results': True,
+                'states_list': states_list, 'districts_list': districts_list
+            })
+    return render(request, 'homepage/daily_climate.html', {
+        'country': c, 'state': s, 'district': d, 'show_results': False,
+        'states_list': states_list, 'districts_list': districts_list
+    })
+
 def climate_analysis(request):
     c, s, d = request.GET.get('country'), request.GET.get('state'), request.GET.get('district')
     q = request.GET.get('q') # Support dynamic search query
