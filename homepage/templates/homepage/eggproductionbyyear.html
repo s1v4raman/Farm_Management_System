@@ -21,8 +21,8 @@
       {% for data in monthly_data %}
       <tr>
         <td>{{ data.Month }}</td>
-        <td>{{ data.total_prod|floatformat:2 }}</td>
-        <td>{{ data.total_cons|floatformat:2 }}</td>
+        <td>{{ data.tp|floatformat:2 }}</td>
+        <td>{{ data.tc|floatformat:2 }}</td>
       </tr>
       {% endfor %}
     </tbody>

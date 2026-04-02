@@ -512,10 +512,30 @@ def Update_egg_production_by_month(request, selected_year, selected_month, Day):
 def climate_analysis(request):
     c, s, d = request.GET.get('country'), request.GET.get('state'), request.GET.get('district')
     cl_data, show = None, False
+    
+    # Lists for dropdown population
+    states_list = []
+    districts_list = []
+    
+    if c:
+        states_list = list(WORLD_REGIONS.get(c, {}).keys())
+    if c and s:
+        districts_list = list(WORLD_REGIONS.get(c, {}).get(s, {}).keys())
+        
     if c and d:
         cl_data = get_7_day_weather_forecast(c, s or "", d)
         if cl_data: show = True
-    return render(request, "homepage/climate_analysis.html", {"climate_data": cl_data, "show_climate_results": show, "country": c, "state": s, "district": d, "WORLD_REGIONS": WORLD_REGIONS})
+        
+    return render(request, "homepage/climate_analysis.html", {
+        "climate_data": cl_data, 
+        "show_climate_results": show, 
+        "country": c, 
+        "state": s, 
+        "district": d, 
+        "WORLD_REGIONS": WORLD_REGIONS,
+        "states_list": states_list,
+        "districts_list": districts_list
+    })
 
 @login_required
 def manage_contact(request):

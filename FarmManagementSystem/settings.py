@@ -70,6 +70,9 @@ TEMPLATES = [
                 "homepage.context_processors.global_notifications",
                 "homepage.context_processors.global_contact_info",
             ],
+            "libraries": {
+                "custom_filters": "homepage.templatetags.custom_filters",
+            },
         },
     },
 ]
