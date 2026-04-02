@@ -33,38 +33,99 @@
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
 
-    <!-- Smart Search Bar -->
-    <div class="mb-10 text-center">
-        <div class="max-w-2xl mx-auto search-focus transition-all duration-300">
-            <form method="GET" action="{% url 'homepage:climate-analysis' %}" class="relative flex items-center">
-                <i class='bx bx-search absolute left-6 text-2xl text-slate-400'></i>
-                <input type="text" name="q" placeholder="Enter City, State, or Country (e.g., Paris, Meghalaya, India)" 
-                       class="w-full pl-16 pr-32 py-5 bg-white border border-slate-200 rounded-3xl shadow-lg focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none text-lg font-semibold transition-all"
-                       value="{{ district|default:'' }}">
-                <button type="submit" class="absolute right-3 px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white font-extrabold rounded-2xl transition-all shadow-md active:scale-95">
-                    ANALYSIS
-                </button>
+    <!-- Dropdown Selection Form -->
+    <div class="mb-10">
+        <div class="max-w-5xl mx-auto glass-card p-10 rounded-[2.5rem] border-slate-200 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-green-600"></div>
+            
+            <h2 class="text-3xl font-black text-slate-900 mb-10 text-center flex items-center justify-center gap-4">
+                <div class="p-3 bg-green-100 rounded-2xl text-green-600 shadow-inner">
+                    <i class='bx bx-map-alt text-4xl'></i>
+                </div>
+                <div>
+                   <span class="text-gradient block">Global Climate Intelligence</span>
+                   <span class="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] block mt-1">Select Region for Deep Analysis</span>
+                </div>
+            </h2>
+            
+            <form method="GET" action="{% url 'homepage:climate-analysis' %}" class="space-y-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Step 1: Country -->
+                    <div class="space-y-4">
+                        <label for="country" class="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest border-l-4 border-green-500 pl-4">
+                            1. Select Country
+                        </label>
+                        <div class="relative group">
+                            <select id="country" name="country" onchange="this.form.submit()" 
+                                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-slate-900 font-bold focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all appearance-none cursor-pointer group-hover:border-slate-200">
+                                <option value="">-- Choose Country --</option>
+                                {% for c in WORLD_REGIONS.keys %}
+                                <option value="{{ c }}" {% if country == c %}selected{% endif %}>{{ c }}</option>
+                                {% endfor %}
+                            </select>
+                            <i class='bx bx-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-2xl text-slate-300 pointer-events-none group-hover:text-green-500 transition-colors'></i>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: State -->
+                    <div class="space-y-4 transition-all duration-300 {% if not country %}opacity-30 pointer-events-none grayscale{% endif %}">
+                        <label for="state" class="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest border-l-4 border-green-500 pl-4">
+                            2. Select State/Region
+                        </label>
+                        <div class="relative group">
+                            <select id="state" name="state" onchange="this.form.submit()" 
+                                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-slate-900 font-bold focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all appearance-none cursor-pointer group-hover:border-slate-200">
+                                <option value="">-- Choose State --</option>
+                                {% if country %}
+                                    {% for s in WORLD_REGIONS|get_item:country %}
+                                    <option value="{{ s }}" {% if state == s %}selected{% endif %}>{{ s }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            <i class='bx bx-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-2xl text-slate-300 pointer-events-none group-hover:text-green-500 transition-colors'></i>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: District -->
+                    <div class="space-y-4 transition-all duration-300 {% if not state %}opacity-30 pointer-events-none grayscale{% endif %}">
+                        <label for="district" class="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest border-l-4 border-green-500 pl-4">
+                            3. Select District/City
+                        </label>
+                        <div class="relative group">
+                            <select id="district" name="district" onchange="this.form.submit()" 
+                                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-slate-900 font-bold focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all appearance-none cursor-pointer group-hover:border-slate-200">
+                                <option value="">-- Choose City --</option>
+                                {% if districts_list %}
+                                    {% for d in districts_list %}
+                                    <option value="{{ d }}" {% if district == d %}selected{% endif %}>{{ d }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            <i class='bx bx-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-2xl text-slate-300 pointer-events-none group-hover:text-green-500 transition-colors'></i>
+                        </div>
+                    </div>
+                </div>
             </form>
-            <p class="mt-4 text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center justify-center gap-2">
-                <i class='bx bx-globe text-green-500'></i> Supports 200,000+ Global Regions
-            </p>
         </div>
     </div>
 
     {% if not show_climate_results %}
-    <!-- Initial Suggestions -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        {% for state_name, cities in WORLD_REGIONS.India.items %}
-            {% if forloop.counter <= 4 %}
-            <a href="?q={{ state_name }}" class="glass-card p-6 rounded-3xl border-slate-200 hover:border-green-400 hover:scale-105 transition-all group">
-                <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 mb-4 group-hover:bg-green-500 group-hover:text-white transition-all">
-                    <i class='bx bxs-map-pin text-2xl'></i>
-                </div>
-                <h4 class="font-black text-slate-900">{{ state_name }}</h4>
-                <p class="text-xs font-bold text-slate-400 mt-1">EXPLORE TRENDS</p>
-            </a>
-            {% endif %}
-        {% endfor %}
+    <!-- Featured Regions Suggestions -->
+    <div class="max-w-4xl mx-auto">
+        <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.4em] mb-8 text-center">Suggested Insights</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {% for state_name in WORLD_REGIONS.India.keys %}
+                {% if forloop.counter <= 4 %}
+                <a href="?country=India&state={{ state_name }}" class="glass-card p-6 rounded-3xl border-slate-200 hover:border-green-500 hover:scale-105 transition-all group text-center block">
+                    <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-600 mb-4 mx-auto group-hover:bg-green-500 group-hover:text-white transition-all shadow-sm">
+                        <i class='bx bxs-map-pin text-2xl'></i>
+                    </div>
+                    <h4 class="font-black text-slate-900 text-sm tracking-tight">{{ state_name }}</h4>
+                    <span class="text-[10px] font-bold text-slate-400 mt-1 uppercase opacity-60">Climate Data</span>
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
     </div>
     {% else %}
     

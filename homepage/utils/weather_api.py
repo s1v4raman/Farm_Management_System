@@ -77,11 +77,72 @@ AUSTRALIA_STATES = {
     "South Australia": {"Adelaide": {"lat": -34.9285, "lon": 138.6007}, "Mount Gambier": {"lat": -37.8284, "lon": 140.7804}},
 }
 
+CANADA_STATES = {
+    "Ontario": {"Toronto": {"lat": 43.6532, "lon": -79.3832}, "Ottawa": {"lat": 45.4215, "lon": -75.6972}},
+    "British Columbia": {"Vancouver": {"lat": 49.2827, "lon": -123.1207}, "Victoria": {"lat": 48.4284, "lon": -123.3656}},
+    "Quebec": {"Montreal": {"lat": 45.5017, "lon": -73.5673}, "Quebec City": {"lat": 46.8139, "lon": -71.2080}}
+}
+
+GERMANY_STATES = {
+    "Bavaria": {"Munich": {"lat": 48.1351, "lon": 11.5820}, "Nuremberg": {"lat": 49.4521, "lon": 11.0767}},
+    "Berlin": {"Berlin": {"lat": 52.5200, "lon": 13.4050}},
+    "Hesse": {"Frankfurt": {"lat": 50.1109, "lon": 8.6821}}
+}
+
+FRANCE_STATES = {
+    "Île-de-France": {"Paris": {"lat": 48.8566, "lon": 2.3522}},
+    "Provence-Alpes-Côte d'Azur": {"Marseille": {"lat": 43.2965, "lon": 5.3698}, "Nice": {"lat": 43.7102, "lon": 7.2620}},
+    "Auvergne-Rhône-Alpes": {"Lyon": {"lat": 45.7640, "lon": 4.8357}}
+}
+
+JAPAN_STATES = {
+    "Tokyo": {"Tokyo": {"lat": 35.6895, "lon": 139.6917}},
+    "Osaka": {"Osaka": {"lat": 34.6937, "lon": 135.5023}},
+    "Hokkaido": {"Sapporo": {"lat": 43.0618, "lon": 141.3545}}
+}
+
+BRAZIL_STATES = {
+    "São Paulo": {"São Paulo": {"lat": -23.5505, "lon": -46.6333}},
+    "Rio de Janeiro": {"Rio de Janeiro": {"lat": -22.9068, "lon": -43.1729}},
+    "Federal District": {"Brasília": {"lat": -15.7975, "lon": -47.8919}}
+}
+
 WORLD_REGIONS = {
     "India": INDIA_STATES,
     "United States": USA_STATES,
     "United Kingdom": UK_STATES,
-    "Australia": AUSTRALIA_STATES
+    "Australia": AUSTRALIA_STATES,
+    "Canada": CANADA_STATES,
+    "Germany": GERMANY_STATES,
+    "France": FRANCE_STATES,
+    "Japan": JAPAN_STATES,
+    "Brazil": BRAZIL_STATES,
+    "China": {
+        "Beijing": {"Beijing": {"lat": 39.9042, "lon": 116.4074}},
+        "Shanghai": {"Shanghai": {"lat": 31.2304, "lon": 121.4737}},
+        "Guangdong": {"Guangzhou": {"lat": 23.1291, "lon": 113.2644}, "Shenzhen": {"lat": 22.5431, "lon": 114.0579}}
+    },
+    "Russia": {
+        "Moscow": {"Moscow": {"lat": 55.7558, "lon": 37.6173}},
+        "Saint Petersburg": {"Saint Petersburg": {"lat": 59.9343, "lon": 30.3351}}
+    },
+    "South Africa": {
+        "Gauteng": {"Johannesburg": {"lat": -26.2041, "lon": 28.0473}, "Pretoria": {"lat": -25.7479, "lon": 28.2293}},
+        "Western Cape": {"Cape Town": {"lat": -33.9249, "lon": 18.4241}}
+    },
+    "Italy": {
+        "Lazio": {"Rome": {"lat": 41.9028, "lon": 12.4964}},
+        "Lombardy": {"Milan": {"lat": 45.4642, "lon": 9.1900}},
+        "Tuscany": {"Florence": {"lat": 43.7696, "lon": 11.2558}}
+    },
+    "Spain": {
+        "Madrid": {"Madrid": {"lat": 40.4168, "lon": -3.7038}},
+        "Catalonia": {"Barcelona": {"lat": 41.3851, "lon": 2.1734}}
+    },
+    "Mexico": {
+        "Mexico City": {"Mexico City": {"lat": 19.4326, "lon": -99.1332}},
+        "Jalisco": {"Guadalajara": {"lat": 20.6597, "lon": -103.3496}}
+    }
 }
 
 
