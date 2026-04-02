@@ -171,10 +171,25 @@ def crop_disease_analysis(request):
 
 def daily_climate(request):
     c, s, d = request.GET.get('country'), request.GET.get('state'), request.GET.get('district')
+    
+    states_list = []
+    districts_list = []
+    if c:
+        states_list = list(WORLD_REGIONS.get(c, {}).keys())
+    if c and s:
+        districts_list = list(WORLD_REGIONS.get(c, {}).get(s, {}).keys())
+
     if c and d:
         w = get_7_day_weather_forecast(c, s or "", d)
-        if w: return render(request, 'homepage/daily_climate.html', {'weather_data': w, 'country': c, 'state': s, 'district': d, 'show_results': True})
-    return render(request, 'homepage/daily_climate.html', {'country': c, 'state': s, 'district': d, 'show_results': False})
+        if w: return render(request, 'homepage/daily_climate.html', {
+            'weather_data': [w['current']] if 'current' in w else [], # daily_climate template expects a list
+            'country': c, 'state': s, 'district': d, 'show_results': True,
+            'states_list': states_list, 'districts_list': districts_list
+        })
+    return render(request, 'homepage/daily_climate.html', {
+        'country': c, 'state': s, 'district': d, 'show_results': False,
+        'states_list': states_list, 'districts_list': districts_list
+    })
 
 def settings_page(request): return render(request, 'homepage/settings.html')
 def Help(request): return render(request, 'homepage/help.html')
