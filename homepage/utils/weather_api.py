@@ -193,16 +193,19 @@ def get_7_day_weather_forecast(country, state, district):
                 return None
                 
         results = geo_data["results"]
-        # Find best match by country if possible
+        # Find best match. If country is provided and not "Global", try to match it.
         best_match = results[0]
-        for r in results:
-            if r.get("country", "").lower() == country.lower():
-                best_match = r
-                break
+        if country and country.lower() != "global":
+            for r in results:
+                if r.get("country", "").lower() == country.lower():
+                    best_match = r
+                    break
                 
         lat = best_match["latitude"]
         lon = best_match["longitude"]
         resolved_city = best_match.get("name", district)
+        resolved_state = best_match.get("admin1", state)
+        resolved_country = best_match.get("country", country)
 
         # Step 2: Fetch 7-day forecast (past_days=1, forecast_days=6 equals 7 days total including today)
         tz_encoded = "auto"

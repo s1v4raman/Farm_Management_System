@@ -169,9 +169,12 @@ def crop_disease_analysis(request):
             except Exception as e: error = f"Failed: {e}"
     return render(request, "homepage/crop_disease_analysis.html", {"result": result, "error": error})
 
-def daily_climate(request):
+def climate_analysis(request):
     c, s, d = request.GET.get('country'), request.GET.get('state'), request.GET.get('district')
-    
+    q = request.GET.get('q') # Support dynamic search query
+
+    if q: d = q # If search query provided, use it as district
+
     states_list = []
     districts_list = []
     if c:
@@ -179,16 +182,37 @@ def daily_climate(request):
     if c and s:
         districts_list = list(WORLD_REGIONS.get(c, {}).get(s, {}).keys())
 
-    if c and d:
-        w = get_7_day_weather_forecast(c, s or "", d)
-        if w: return render(request, 'homepage/daily_climate.html', {
-            'weather_data': [w['current']] if 'current' in w else [], # daily_climate template expects a list
-            'country': c, 'state': s, 'district': d, 'show_results': True,
-            'states_list': states_list, 'districts_list': districts_list
-        })
-    return render(request, 'homepage/daily_climate.html', {
-        'country': c, 'state': s, 'district': d, 'show_results': False,
-        'states_list': states_list, 'districts_list': districts_list
+    if d: # Any location name works with Open-Meteo geocoding
+        w = get_7_day_weather_forecast(c or "India", s or "", d)
+        if w:
+            # Use resolved location names from geocoder
+            loc = w.get('resolved_location', {})
+            d = loc.get('city', d)
+            s = loc.get('state', s)
+            c = loc.get('country', c)
+
+            # Prepare chart data
+            chart_labels = [day['weekday'][:3] for day in w['daily']]
+            chart_temps = [day['temp_max'] for day in w['daily']]
+            chart_rain = [day['rainfall'] for day in w['daily']]
+
+            return render(request, 'homepage/climate_analysis.html', {
+                'climate_data': w['daily'],
+                'current_weather': w.get('current'),
+                'country': c, 'state': s, 'district': d,
+                'show_climate_results': True,
+                'states_list': states_list, 'districts_list': districts_list,
+                'WORLD_REGIONS': WORLD_REGIONS,
+                'chart_labels': chart_labels,
+                'chart_temps': chart_temps,
+                'chart_rain': chart_rain
+            })
+    
+    return render(request, 'homepage/climate_analysis.html', {
+        'show_climate_results': False,
+        'country': c, 'state': s, 'district': d,
+        'states_list': states_list, 'districts_list': districts_list,
+        'WORLD_REGIONS': WORLD_REGIONS
     })
 
 def settings_page(request): return render(request, 'homepage/settings.html')
