@@ -7,6 +7,7 @@
   <title>{% block title %}Farm Management System{% endblock %}</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/2329/2329158.png">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Tailwind CSS specifically required for the Retail Dashboard SVG layout -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -40,138 +41,236 @@
     /* ==================== SIDEBAR ==================== */
     .sidebar {
       position: fixed; left: 0; top: 0; height: 100vh; width: var(--sidebar-w);
-      background: var(--sidebar-bg); border-right: 1px solid var(--border-color);
-      padding: 24px 20px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 100; display: flex; flex-direction: column;
+      background: var(--sidebar-bg); border: none; 
+      padding: 30px 18px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000; display: flex; flex-direction: column;
     }
     .sidebar.collapsed { width: var(--sidebar-collapsed); }
 
     .brand {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 40px;
-      padding: 0 8px; cursor: pointer;
+      display: flex; align-items: center; gap: 14px; margin-bottom: 50px;
+      padding: 12px 10px; cursor: pointer; border-radius: 20px; transition: 0.3s;
     }
-    .brand i { font-size: 28px; color: #ffffff; min-width: 28px; }
-    .brand span { font-size: 20px; font-weight: 800; color: #ffffff; white-space: nowrap; opacity: 1; transition: 0.3s; letter-spacing: -0.5px; }
-    .sidebar.collapsed .brand span { opacity: 0; pointer-events: none; }
+    .brand:hover { background: rgba(255, 255, 255, 0.1); }
+    .brand i { font-size: 32px; color: #ffffff; min-width: 32px; }
+    .brand span { font-size: 22px; font-weight: 800; color: #ffffff; white-space: nowrap; opacity: 1; transition: 0.3s; letter-spacing: -0.8px; }
 
     .nav-menu { list-style: none; flex-grow: 1; overflow-y: auto; padding:0; margin:0; }
     .nav-menu::-webkit-scrollbar { display: none; }
-    .nav-menu li { margin-bottom: 6px; }
+    .nav-menu li { margin-bottom: 10px; }
     .nav-menu a {
-      display: flex; align-items: center; gap: 14px; padding: 12px 14px; margin-bottom: 5px;
-      text-decoration: none; color: var(--sidebar-text); border-radius: 12px;
-      font-weight: 600; font-size: 14.5px; transition: all 0.3s ease; white-space: nowrap; position: relative;
+      display: flex; align-items: center; gap: 16px; padding: 16px 20px;
+      text-decoration: none; color: var(--sidebar-text); border-radius: 16px;
+      font-weight: 600; font-size: 15px; transition: all 0.3s ease; white-space: nowrap;
     }
-    .nav-menu a:hover { background: var(--accent); color: #ef4444; }
-    .nav-menu a.active { background: var(--sidebar-active-bg); color: var(--sidebar-active-text); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .nav-menu a i { font-size: 22px; min-width: 22px; color: #ffffff; transition: 0.3s; }
-    .nav-menu a:hover i { color: #ef4444; }
-    .nav-menu a.active i { color: var(--sidebar-active-text); }
+    .nav-menu a:hover { background: rgba(255, 255, 255, 0.12); color: #ffffff; }
+    .nav-menu a.active { 
+        background: #ffffff !important; 
+        color: #000000 !important; 
+        font-weight: 800;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        transform: scale(1.02);
+    }
+    .nav-menu a i { font-size: 24px; min-width: 24px; color: inherit; }
+    .nav-menu a.active i { color: #00cc00; }
     .nav-menu span { opacity: 1; transition: 0.3s; }
-    .sidebar.collapsed .nav-menu span { opacity: 0; pointer-events: none; }
-
-    .nav-menu a::after {
-      content: attr(data-title); position: absolute; left: calc(100% + 15px);
-      background: var(--text-main); color: #fff; padding: 6px 12px; border-radius: 6px;
-      font-size: 13px; opacity: 0; pointer-events: none; transition: 0.3s; z-index: 10; white-space: nowrap;
-    }
-    .sidebar.collapsed .nav-menu a:hover::after { opacity: 1; }
 
     /* ==================== MAIN CONTENT ==================== */
     .main-content {
-      margin-left: var(--sidebar-w); padding: 30px 40px; min-height: 100vh;
+      margin-left: var(--sidebar-w); min-height: 100vh;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex; flex-direction: column;
+      background: var(--sidebar-bg); /* Match sidebar for L-shape base */
     }
     .sidebar.collapsed ~ .main-content { margin-left: var(--sidebar-collapsed); }
 
-    /* ==================== HEADER (Profile, Settings, Notifications) ==================== */
-    .top-header { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 20px; }
+    .page-container {
+        flex-grow: 1;
+        background: #f8fafc; /* Content area background */
+        margin: 0; /* Removing margins for integrated feel */
+        border-top-left-radius: 40px; /* Large rounded corner for content "tablet" */
+        padding: 40px;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    /* ==================== HEADER (L-SHAPE REFINE) ==================== */
+    .top-header { 
+        background: #00cc00; 
+        padding: 15px 40px 25px 40px;
+    }
     .top-header-row {
-      background: #00cc00; /* Vibrant Green Header */
-      margin: -30px -40px 24px -40px;
-      padding: 20px 48px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      width: calc(100% + 80px) !important;
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 80px;
+      gap: 30px;
     }
-    .greeting-area { padding-left: 0; }
-    .greeting h1 { font-size: 26px; color: var(--text-main); font-weight: 700; letter-spacing: -0.5px; margin:0; }
-    .page-subtitle { color: var(--text-muted); font-size: 15px; margin-top: 4px; display: block; }
+
+    .header-left { width: 220px; display: flex; align-items: center; }
+    .header-center { flex-grow: 1; display: flex; justify-content: center; overflow: visible; }
+    .header-right { min-width: 450px; display: flex; justify-content: flex-end; }
+
+    .search-pill-container { 
+        position: relative; width: 100%; max-width: 800px; z-index: 10; 
+        display: flex; align-items: center; background: #ffffff; 
+        border-radius: 35px; height: 64px; padding: 0 5px;
+        box-shadow: 0 4px 25px rgba(0,0,0,0.12);
+    }
+    .search-rail-item {
+        display: flex; align-items: center; justify-content: center;
+        padding: 0 22px; height: 100%;
+    }
+    .search-rail-item i { font-size: 24px; color: #00cc00; }
+    .search-pill-input { 
+        flex-grow: 1; background: transparent !important; border: none !important; 
+        box-shadow: none !important; margin: 0 !important; border-radius: 0; 
+        padding: 0 50px 0 0 !important; color: #000000; 
+        font-weight: 700; font-size: 16.5px; 
+        transition: 0.3s; height: 100%; text-align: center;
+    }
+    .search-pill-input:focus { outline: none !important; }
+
+    @media (max-width: 1400px) {
+        .header-right { min-width: auto; }
+        .rail-label { display: none; }
+    }
+    @media (max-width: 1200px) {
+        .profile-meta { display: none; }
+    }
+    .menu-toggle-btn {
+        background: #ffffff; border: none; width: 48px; height: 48px;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-size: 24px; color: #00cc00; cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: 0.3s;
+    }
+    .menu-toggle-btn:hover { background: #f8fafc; transform: scale(1.1); }
+
+    .utility-rail {
+        display: flex; align-items: center; background: #ffffff; 
+        border-radius: 35px; padding: 5px 8px; height: 64px;
+        box-shadow: 0 4px 25px rgba(0,0,0,0.12); gap: 2px;
+    }
+    .rail-item {
+        background: transparent; border: none; padding: 0 18px; height: 100%;
+        display: flex; align-items: center; gap: 12px; cursor: pointer;
+        border-radius: 30px; transition: 0.3s; color: #1e293b;
+    }
+    .rail-item:hover { background: #f8fafc; }
+    .rail-item i { font-size: 24px; color: #00cc00; }
+    .rail-divider { width: 1.5px; height: 28px; background: #f1f5f9; margin: 0 2px; }
     
-    .menu-toggle-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: transparent; border-radius: 12px; color: var(--text-muted); font-size: 24px; border: 1px solid var(--border-color); cursor: pointer; transition: 0.3s; padding:0; }
-    .menu-toggle-btn:hover { background: var(--surface); color: var(--primary); }
-
-    .header-actions { display: flex; gap: 12px; align-items: center; }
+    .rail-text-stack { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; white-space: nowrap; }
+    .rail-text-stack span:first-child { font-size: 16px; font-weight: 800; color: #0f172a; }
+    .rail-text-stack span:last-child { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.8px; }
     
-    .icon-btn {
-      width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
-      background: var(--surface); border-radius: 12px; color: var(--text-muted); font-size: 22px;
-      border: 1px solid var(--border-color); cursor: pointer; transition: 0.3s; position: relative;
-      text-decoration: none; padding:0;
-    }
-    .icon-btn:hover { background: var(--accent); color: var(--primary); border-color: transparent; }
+    .rail-label { font-size: 15px; font-weight: 800; color: #0f172a; white-space: nowrap; }
     
-    .badge {
-      position: absolute; top: -4px; right: -4px; background: #e07a5f; color: #fff;
-      font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;
-      border: 2px solid var(--surface);
+    .profile-pill { padding-right: 15px; }
+    .profile-avatar { 
+        width: 42px; height: 42px; background: #00cc00; color: #fff; 
+        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+        font-weight: 800; font-size: 18px; 
     }
+    .profile-meta { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; margin-left: 2px; }
+    .profile-meta strong { font-size: 14.5px; color: #0f172a; }
+    .profile-meta small { font-size: 10.5px; color: #94a3b8; text-transform: uppercase; }
 
-    .profile-module {
-      display: flex; align-items: center; gap: 12px; padding: 6px 16px 6px 6px;
-      background: var(--surface); border-radius: 30px; border: 1px solid var(--border-color);
-      cursor: pointer; transition: 0.3s; margin-left: 8px; text-decoration: none;
+    @media (max-width: 1200px) {
+        .rail-label, .profile-meta { display: none; }
+        .top-header-row { grid-template-columns: auto 1fr auto; }
+        .header-search { max-width: 350px; }
     }
-    .profile-module:hover { border-color: var(--primary-light); box-shadow: 0 4px 12px rgba(77, 124, 95, 0.1); }
-    .profile-avatar {
-      width: 34px; height: 34px; border-radius: 50%;
-      background: var(--secondary); color: #fff;
-      display: flex; align-items: center; justify-content: center; font-weight: 700;
-      font-size: 14px;
-    }
-    .profile-info { display: flex; flex-direction: column; }
-    .profile-name { font-size: 14px; font-weight: 700; color: #000000; line-height:1; margin-bottom: 2px; }
-    .profile-role { font-size: 12px; color: #94a3b8; line-height:1; }
-
-    .page-body { flex-grow: 1; }
-
-    .footer { text-align: center; padding: 24px; color: var(--text-muted); font-size: 13px; font-weight: 500; margin-top: auto; }
-
-    /* Search Bar */
-    .header-search { flex-grow: 1; max-width: 480px; margin: 0 30px; position: relative; display: flex; align-items: center; }
-    .header-search input { width: 100%; border-radius: 14px; padding: 12px 18px 12px 52px !important; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(0,0,0,0.06); color: var(--text-main); font-size: 15px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin: 0; box-shadow: 0 2px 15px rgba(0,0,0,0.02); box-sizing: border-box; }
-    .header-search input:focus { background: #fff; border-color: var(--primary); box-shadow: 0 6px 20px rgba(77, 124, 95, 0.15); outline: none; padding-left: 52px !important; }
-    .header-search .bx-search { position: absolute; left: 18px; color: var(--text-muted); font-size: 20px; pointer-events: none; transition: 0.3s; z-index: 5; }
-    .header-search input:focus ~ .bx-search { color: var(--primary); }
-
-    /* Search Results Dropdown */
-    .search-results { position: absolute; top: calc(100% + 10px); left: 0; right: 0; background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.12); z-index: 200; display: none; max-height: 400px; overflow-y: auto; padding: 10px; }
-    .search-results::-webkit-scrollbar { width: 6px; }
-    .search-results::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    .search-results.active { display: block; animation: searchSlideDown 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-    .search-item { display: flex; align-items: center; gap: 14px; padding: 10px; color: var(--text-main); text-decoration: none; font-size: 14.5px; font-weight: 500; border-radius: 10px; transition: 0.2s; margin-bottom: 4px; }
-    .search-item:last-child { margin-bottom: 0; }
-    .search-item:hover { background: var(--surface); color: var(--primary); transform: translateX(4px); }
-    .search-item i { color: var(--text-muted); font-size: 20px; background: var(--bg); width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: 0.2s; }
-    .search-item:hover i { background: var(--primary-light); color: var(--primary); }
-    @keyframes searchSlideDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Dropdowns */
-    .dropdown-container { position: relative; }
-    .dropdown-menu { position: absolute; top: calc(100% + 10px); right: 0; background: var(--surface); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); width: max-content; min-width: 220px; color: var(--text-main); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 200; overflow: hidden; padding: 8px 0; }
-    .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
-    .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 500; transition: 0.2s; }
-    .dropdown-item:hover { background: var(--bg); color: var(--primary); }
-    .dropdown-item i { font-size: 18px; color: var(--primary-light); }
-    .dropdown-divider { height: 1px; background: var(--border-color); margin: 6px 0; }
 
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); width: 260px; }
       .sidebar.collapsed { transform: translateX(0); width: 260px; }
-      .main-content { margin-left: 0 !important; width: 100%; padding: 20px; }
-      .menu-toggle-btn { display: flex !important; }
+      .main-content { margin-left: 0 !important; width: 100%; }
+      .page-container { border-top-left-radius: 0; padding: 20px; }
+      .top-header { padding: 10px 20px 20px 20px; }
+      .header-search-container { display: none; }
     }
+
+    /* ==================== DROPDOWNS & UTILITIES ==================== */
+    .dropdown-container { position: relative; }
+    .dropdown-menu {
+        position: absolute; top: calc(100% + 15px); right: 0;
+        background: #ffffff; border-radius: 20px; min-width: 260px;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.15); border: 1px solid #f1f5f9;
+        display: none; z-index: 2000; padding: 10px 0;
+        transform-origin: top right; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .dropdown-menu.show { display: block; animation: dropFade 0.3s ease; }
+    @keyframes dropFade { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .dropdown-header { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; font-weight: 800; color: #0f172a; font-size: 15px; }
+    .dropdown-item { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #475569; text-decoration: none; font-size: 14.5px; font-weight: 600; transition: 0.2s; }
+    .dropdown-item:hover { background: #f8fafc; color: #00cc00; }
+    .dropdown-item i { font-size: 20px; }
+    .dropdown-divider { height: 1px; background: #f1f5f9; margin: 8px 0; }
+
+    /* Widget Specifics */
+    .weather-menu { min-width: 300px; padding: 20px !important; }
+    .tracker-btn { color: #00cc00; font-size: 11px; font-weight: 800; text-decoration: none; background: rgba(0,204,0,0.08); padding: 6px 12px; border-radius: 8px; }
+    .weather-brief { display: flex; gap: 15px; align-items: center; margin-top: 15px; }
+    .weather-icon-box { width: 48px; height: 48px; background: rgba(0,204,0,0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #00cc00; font-size: 26px; }
+    .weather-details div:first-child { font-size: 16px; font-weight: 800; color: #0f172a; }
+    .weather-details div:last-child { font-size: 13px; color: #64748b; font-weight: 600; }
+    .climate-alert { margin-top: 15px; padding: 12px; border-radius: 12px; background: #fff1f2; color: #be123c; font-size: 12px; font-weight: 700; border-left: 4px solid #e11d48; display: none; }
+    .climate-alert.d-block { display: block !important; }
+
+    .support-menu { min-width: 320px; padding: 20px !important; }
+    .support-list { display: flex; flex-direction: column; gap: 16px; margin-top: 10px; }
+    .support-item { display: flex; align-items: center; gap: 14px; }
+    .support-item i { width: 40px; height: 40px; background: rgba(0,204,0,0.1); color: #00cc00; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .support-item small { display: block; font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase; }
+    .support-item strong { font-size: 14px; color: #1e293b; }
+
+    .notif-menu { min-width: 350px; padding: 0 !important; }
+    .notif-badge { font-size: 11px; background: #00cc00; color: #fff; padding: 4px 10px; border-radius: 12px; }
+    .notif-item { display: flex; gap: 14px; padding: 16px 20px; text-decoration: none; border-bottom: 1px solid #f1f5f9; transition: 0.2s; }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-item:hover { background: #f8fafc; }
+    .notif-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .notif-content strong { display: block; font-size: 14px; color: #1e293b; line-height: 1.4; margin-bottom: 2px; }
+    .notif-content small { font-size: 11px; color: #94a3b8; font-weight: 700; }
+
+    .profile-header { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 2px; }
+    .profile-header strong { font-size: 16px; color: #0f172a; }
+    .profile-header small { color: #64748b; font-size: 12px; font-weight: 600; }
+    .logout-link { color: #e11d48 !important; }
+    .logout-link:hover { background: #fff1f2 !important; }
+
+    /* ==================== SEARCH RESULTS ==================== */
+    .search-results {
+      position: absolute; top: calc(100% + 10px); left: 0; width: 100%;
+      background: #ffffff; border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      display: none; z-index: 1500; padding: 10px; border: 1px solid #f1f5f9;
+    }
+    .search-results.active { display: block; }
+    .search-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; text-decoration: none; color: #1e293b; font-weight: 600; transition: 0.2s; }
+    .search-item:hover { background: #f8fafc; color: #00cc00; }
+    .search-item i { font-size: 20px; color: #94a3b8; }
+
+    /* ==================== NAVIGATION & BUTTONS ==================== */
+    .btn-back {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 10px 18px; background: #ffffff; color: #1e293b;
+        border-radius: 12px; font-weight: 700; font-size: 14px;
+        transition: 0.3s; text-decoration: none; border: 1.5px solid #f1f5f9;
+        margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .btn-back:hover { 
+        background: #f8fafc; color: #00cc00; border-color: #00cc00; 
+        transform: translateX(-5px); box-shadow: 0 6px 15px rgba(0, 204, 0, 0.1);
+    }
+    .btn-back i { font-size: 18px; transition: 0.3s; }
+    
+    .module-header { margin-bottom: 30px; }
+    .module-header h1 { font-size: 28px; font-weight: 800; color: #0f172a; margin: 0; }
+    .module-subtitle { color: #64748b; font-size: 14.5px; font-weight: 600; display: block; margin-top: 4px; }
 
     /* Fallback styles for older content elements extending base.html */
     .form-container, .table-container, .dashboard-container {
@@ -230,6 +329,12 @@
     }
     .no-data i { font-size: 64px; color: var(--accent); background: var(--primary); padding: 24px; border-radius: 50%; box-shadow: 0 8px 20px rgba(77, 124, 95, 0.2); }
     .no-data p { font-size: 16px; font-weight: 500; margin:0; }
+    /* Utility Classes to resolve lints */
+    .d-flex { display: flex !important; }
+    .d-none { display: none !important; }
+    .alert-error { background: #fffafa; color: #e11d48; border-color: #fb7185; border-left-color: #e11d48 !important; }
+    .alert-success { background: #f0fdf4; color: #166534; border-color: #bbf7d0; border-left-color: #166534 !important; }
+    .alert-info { background: #f8fafc; color: #475569; border-color: #e2e8f0; border-left-color: #475569 !important; }
   </style>
 </head>
 <body>
@@ -237,15 +342,13 @@
   <!-- SIDEBAR -->
   <nav class="sidebar" id="sidebar">
     <div class="brand">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <i class='bx bxs-leaf' style="font-size: 28px; color: #ffffff;"></i>
-      </div>
-      <span style="font-size: 20px; margin-left: 4px; color: #ffffff; font-weight: 800;">{% if request.user.is_superuser or request.user.is_staff %}Farm Manager{% else %}Agri-Market{% endif %}</span>
+        <i class='bx bxs-leaf'></i>
+        <span>{% if request.user.is_superuser or request.user.is_staff %}Farm Manager{% else %}Agri-Market{% endif %}</span>
     </div>
     
     <ul class="nav-menu">
       <li>
-        <a href="{% url 'homepage:mainpage' %}" data-title="Dashboard">
+        <a href="{% url 'homepage:mainpage' %}">
            <i class='bx bx-grid-alt'></i><span>Dashboard</span>
         </a>
       </li>
@@ -307,193 +410,153 @@
   <!-- MAIN CONTENT -->
   <main class="main-content">
     <header class="top-header">
-      <div class="top-header-row" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-        <div style="display: flex; align-items: center; justify-content: center; flex-grow: 1; padding: 0 40px;">
-          <div class="header-search" style="margin: 0; max-width: 600px; width: 100%; position: relative;">
-            <i class='bx bx-search' style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 22px; z-index: 10;"></i>
-            <input type="text" id="global-search" placeholder="Search modules, pages, or tools..." autocomplete="off" style="background: #ffffff; border: none; border-radius: 12px; padding: 16px 20px 16px 54px !important; color: #000000; box-shadow: 0 4px 20px rgba(0,0,0,0.12); font-weight: 500; width: 100%; font-size: 15px;">
-            <div class="search-results" id="search-results">
+      <div class="top-header-row">
+        <!-- Left: Menu Toggle Placeholder -->
+         <div class="header-left">
+            <button class="menu-toggle-btn" id="menu-toggle"><i class='bx bx-menu'></i></button>
+         </div>
+
+        <!-- Center: Search Pill -->
+        <div class="header-center">
+          <div class="search-pill-container">
+            <div class="search-rail-item">
+              <i class='bx bx-search'></i>
             </div>
+            <div class="rail-divider"></div>
+            <input type="text" id="global-search" class="search-pill-input" placeholder="Search modules, tools, or pages..." autocomplete="off">
+            <div class="search-results" id="search-results"></div>
           </div>
         </div>
 
-        <div class="header-actions" style="display: flex; align-items: center; gap: 20px;">
-        <!-- Climate Alert Module -->
-        <div class="dropdown-container" id="climate-dropdown">
-          <button class="icon-btn dropdown-toggle" id="live-weather-widget" title="Climate Alert" style="background: #ffffff; border: none; border-radius: 18px; color: #000000; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: auto; padding: 0 20px; gap: 10px; height: 54px; display: none;">
-            <i class='bx bx-cloud' style="color: #00cc00; font-size: 24px;"></i>
-            <div style="display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2;">
-              <span id="weather-temp" style="font-size: 15px; font-weight: 800;">--°C</span>
-              <span id="weather-city" style="font-size: 10px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Locating...</span>
-            </div>
-          </button>
-          <div class="dropdown-menu" style="min-width: 260px; padding: 18px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 12px;">
-              <div style="font-weight: 800; color: #000; font-size: 14px; letter-spacing: -0.3px;">Climate Insights</div>
-              <a href="{% url 'homepage:daily-climate' %}" style="color: #00cc00; font-size: 11px; font-weight: 700; text-decoration: none; background: rgba(0,204,0,0.06); padding: 4px 10px; border-radius: 6px;">TRACKER</a>
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 14px;">
-              <div style="display: flex; items-center; gap: 12px;">
-                <div id="weather-icon-bg" style="width: 40px; height: 40px; background: rgba(0,204,0,0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #00cc00;">
-                  <i class='bx bx-cloud' style="font-size: 22px;"></i>
-                </div>
-                <div>
-                  <div id="weather-status-text" style="font-size: 13px; font-weight: 700; color: #1e293b;">Fetching data...</div>
-                  <div id="weather-desc" style="font-size: 11px; color: #64748b; font-weight: 600;">Please wait a moment</div>
-                </div>
-              </div>
-              
-              <div id="climate-alert-box" style="display: none; padding: 10px; border-radius: 10px; border-left: 4px solid #ef4444; background: #fff5f5; color: #b91c1c; font-size: 12px; font-weight: 700;">
-                <i class='bx bx-error-circle'></i> Rainfall Alert: High probability today.
-              </div>
-            </div>
+        <!-- Right: Utility Rail -->
+        <div class="header-right">
+          <div class="utility-rail">
+             <!-- Weather Widget -->
+             <div class="dropdown-container" id="climate-dropdown">
+               <button class="rail-item dropdown-toggle" id="live-weather-widget" title="Climate Alert">
+                 <div id="weather-live-dot" class="animate-pulse"></div>
+                 <i class='bx bx-cloud'></i>
+                 <div class="rail-text-stack">
+                   <span id="weather-temp">{{ weather_data.temperature|default:"--" }}°C</span>
+                   <span id="weather-city">{{ weather_data.city|default:"Locating..." }}</span>
+                 </div>
+               </button>
+               <div class="dropdown-menu weather-menu">
+                  <div class="dropdown-header">
+                    <span>Climate Insights</span>
+                    <a href="{% url 'homepage:daily-climate' %}" class="tracker-btn">TRACKER</a>
+                  </div>
+                  <div class="weather-brief">
+                    <div class="weather-icon-box" id="weather-icon-bg"><i class='bx bx-cloud'></i></div>
+                    <div class="weather-details">
+                      <div id="weather-status-text">Condition: {{ weather_data.temperature|default:"--" }}°C</div>
+                      <div id="weather-desc">
+                        {% if weather_data %}
+                        <i class='bx bx-wind'></i> {{ weather_data.wind_speed }}km/h | <i class='bx bx-droplet'></i> {{ weather_data.humidity }}%
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                  <div id="climate-alert-box" class="climate-alert {% if weather_data.rainfall > 0 %}d-block{% else %}d-none{% endif %}">
+                     <i class='bx bx-error-circle'></i> RAIN ALERT: {{ weather_data.rainfall }}mm
+                  </div>
+               </div>
+             </div>
+
+             <div class="rail-divider"></div>
+
+             <!-- Support Widget -->
+             <div class="dropdown-container">
+               <button class="rail-item dropdown-toggle" title="Support">
+                 <i class='bx bx-headphone'></i>
+                 <span class="rail-label">Support</span>
+               </button>
+               <div class="dropdown-menu support-menu">
+                  <div class="dropdown-header">Premium Support</div>
+                  <div class="support-list">
+                    <div class="support-item"><i class='bx bx-phone'></i> <div><small>PHONE</small><strong>{{ contact_info.phone }}</strong></div></div>
+                    <div class="support-item"><i class='bx bx-envelope'></i> <div><small>EMAIL</small><strong>{{ contact_info.email }}</strong></div></div>
+                    <div class="support-item"><i class='bx bx-map'></i> <div><small>ADDRESS</small><strong>{{ contact_info.address }}</strong></div></div>
+                  </div>
+                  {% if request.user.is_superuser or request.user.is_staff %}
+                  <div class="dropdown-divider" style="margin: 15px 0;"></div>
+                  <a href="{% url 'homepage:manage_contact' %}" class="dropdown-item" style="color: #00cc00; font-weight: 700; text-align: center; background: rgba(0,204,0,0.05); padding: 10px; border-radius: 8px;">
+                    <i class='bx bx-edit-alt'></i> Edit Support Info
+                  </a>
+                  {% endif %}
+               </div>
+             </div>
+
+             <div class="rail-divider"></div>
+
+             <!-- Notifications Widget -->
+             <div class="dropdown-container">
+               <button class="rail-item dropdown-toggle" title="Notifications">
+                 <i class='bx bx-bell'></i>
+                 {% if notif_count > 0 %}<span class="notif-dot"></span>{% endif %}
+               </button>
+               <div class="dropdown-menu notif-menu">
+                  <div class="dropdown-header">
+                    <span>Notifications</span>
+                    <span class="notif-badge">{{ notif_count|default:"0" }} New</span>
+                  </div>
+                  <div class="notif-list">
+                    <!-- Notification items iterate here -->
+                    <div class="notif-item">
+                      <div class="notif-icon" style="background: rgba(0,204,0,0.1); color: #00cc00;"><i class='bx bx-info-circle'></i></div>
+                      <div class="notif-content"><strong>System Status: Optimized</strong><small>Just now</small></div>
+                    </div>
+                  </div>
+               </div>
+             </div>
+
+             <div class="rail-divider"></div>
+
+             <!-- Profile Widget -->
+             <div class="dropdown-container">
+               <button class="rail-item profile-pill dropdown-toggle">
+                 <div class="profile-avatar">{{ user.username|make_list|first|upper }}</div>
+                 <div class="profile-meta">
+                   <strong>{{user.username|title}}</strong>
+                   <small>{% if request.user.is_superuser %}Farm Admin{% else %}Farmer{% endif %}</small>
+                 </div>
+                 <i class='bx bx-chevron-down'></i>
+               </button>
+               <div class="dropdown-menu profile-menu">
+                 <div class="profile-header">
+                   <strong>{{user.username}}</strong>
+                   <small>{{user.email|default:user.username|add:"@gmail.com"}}</small>
+                 </div>
+                 <a href="{% url 'homepage:profile' %}" class="dropdown-item"><i class='bx bx-user'></i> Profile</a>
+                 <a href="{% url 'homepage:settings' %}" class="dropdown-item"><i class='bx bx-cog'></i> Settings</a>
+                 <div class="dropdown-divider"></div>
+                 <a href="{% url 'authentication:logout' %}" class="dropdown-item logout-link"><i class='bx bx-log-out'></i> Logout</a>
+               </div>
+             </div>
           </div>
-        </div>
-
-        <!-- Contact Module -->
-        <div class="dropdown-container" id="contact-dropdown" style="margin-left: 10px;">
-          <button class="icon-btn dropdown-toggle" title="Contact Us" style="background: #ffffff; border: none; border-radius: 18px; color: #000000; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: auto; padding: 0 20px; gap: 10px; height: 54px;">
-            <i class='bx bx-headphone' style="color: #00cc00; font-size: 24px;"></i>
-            <span style="font-size: 14px; font-weight: 800;">Support</span>
-          </button>
-          <div class="dropdown-menu" style="min-width: 280px; padding: 15px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px;">
-              <div style="font-weight: 700; color: #000; font-size: 15px;">Contact Information</div>
-              {% if request.user.is_staff or request.user.is_superuser %}
-              <a href="{% url 'homepage:manage_contact' %}" title="Edit Info" style="color: #00cc00; font-size: 18px;"><i class='bx bx-edit'></i></a>
-              {% endif %}
-            </div>
-            
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 32px; height: 32px; background: rgba(0,204,0,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #00cc00;">
-                  <i class='bx bx-phone'></i>
-                </div>
-                <div>
-                  <div style="font-size: 11px; color: #666; font-weight: 600;">PHONE</div>
-                  <div style="font-size: 13px; font-weight: 700; color: #000;">{{ contact_info.phone }}</div>
-                </div>
-              </div>
-
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 32px; height: 32px; background: rgba(0,204,0,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #00cc00;">
-                  <i class='bx bx-envelope'></i>
-                </div>
-                <div>
-                  <div style="font-size: 11px; color: #666; font-weight: 600;">EMAIL</div>
-                  <div style="font-size: 13px; font-weight: 700; color: #2d3436;">{{ contact_info.email }}</div>
-                </div>
-              </div>
-
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 32px; height: 32px; background: rgba(0,204,0,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #00cc00;">
-                  <i class='bx bx-map'></i>
-                </div>
-                <div>
-                  <div style="font-size: 11px; color: #666; font-weight: 600;">ADDRESS</div>
-                  <div style="font-size: 13px; font-weight: 700; line-height: 1.4;">{{ contact_info.address|linebreaksbr }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Notifications Module -->
-        <div class="dropdown-container" id="notif-dropdown">
-          <button class="icon-btn dropdown-toggle" title="Notifications" style="background: #ffffff; border: none; border-radius: 18px; color: #000000; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 54px; height: 54px; position: relative;">
-            <i class='bx bx-bell' style="font-size: 24px;"></i>
-            {% if notif_count > 0 %}
-            <span style="position: absolute; top: 12px; right: 12px; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid #fff;"></span>
-            {% endif %}
-          </button>
-          <div class="dropdown-menu" style="min-width: 320px; padding: 0; max-height: 480px; overflow-y: auto;">
-            <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
-              <span style="font-weight: 800; color: #000; font-size: 15px;">Notifications</span>
-              <span style="font-size: 11px; background: var(--primary); color: #fff; padding: 2px 8px; border-radius: 10px;">{{ notif_count }} New</span>
-            </div>
-            
-            <div class="notif-list">
-              {% for notif in notifications %}
-              <a href="{{ notif.url }}" style="display: flex; gap: 14px; padding: 15px 20px; text-decoration: none; border-bottom: 1px solid var(--border-color); transition: 0.2s; align-items: flex-start;">
-                <div style="width: 38px; height: 38px; background: {{ notif.color|default:'#f1f5f9' }}15; color: {{ notif.color|default:'#475569' }}; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <i class='bx {{ notif.icon }}' style="font-size: 20px;"></i>
-                </div>
-                <div style="flex-grow: 1;">
-                  <div style="font-size: 13.5px; font-weight: 700; color: #1e293b; line-height: 1.4; margin-bottom: 2px;">{{ notif.text }}</div>
-                  <div style="font-size: 11px; color: #94a3b8; font-weight: 600;">Just now</div>
-                </div>
-              </a>
-              {% empty %}
-              <div style="padding: 40px 20px; text-align: center; color: #94a3b8;">
-                <i class='bx bx-bell-off' style="font-size: 40px; margin-bottom: 10px; opacity: 0.3;"></i>
-                <p style="font-size: 14px; font-weight: 500;">No new notifications for now.</p>
-              </div>
-              {% endfor %}
-            </div>
-            
-            {% if notif_count > 0 %}
-            <a href="#" style="display: block; padding: 12px; text-align: center; font-size: 12px; font-weight: 700; color: var(--primary); text-decoration: none; background: #fff; border-top: 1px solid var(--border-color);">View All Activity</a>
-            {% endif %}
-          </div>
-        </div>
-        
-        <!-- Settings Module -->
-        <a href="{% url 'homepage:settings' %}" class="icon-btn" title="Settings" style="background: #ffffff; border: none; border-radius: 18px; color: #000000; box-shadow: 0 4px 15px rgba(0,0,0,0.08); width: 54px; height: 54px;">
-          <i class='bx bx-cog' style="font-size: 24px;"></i>
-        </a>
-
-        <!-- Profile Module -->
-        <div class="dropdown-container" id="profile-dropdown">
-          <a href="#" class="profile-module dropdown-toggle" title="User Profile" style="background: #ffffff; border: none; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); height: 54px; padding: 0 15px 0 6px;">
-            <div class="profile-avatar" style="background: #00cc00; color: #fff; width: 42px; height: 42px;">{{ user.username|make_list|first|upper }}</div>
-            <div class="profile-info">
-              <span class="profile-name">{{user.username|title}}</span>
-              <span class="profile-role">{% if request.user.is_superuser %}Admin{% elif request.user.is_staff %}Farmer{% else %}User{% endif %}</span>
-            </div>
-            <i class='bx bx-chevron-down' style="color: #94a3b8; font-size: 20px; margin-left: 4px;"></i>
-          </a>
-          <div class="dropdown-menu">
-            <div style="padding: 10px 20px; border-bottom: 1px solid var(--border-color); margin-bottom: 6px;">
-              <div style="font-weight: 700; color: #2d3436;">{{user.username}}</div>
-              <div style="font-size: 12px; color: #666;">{{user.email|default:user.username|add:"@gmail.com"}}</div>
-            </div>
-            <a href="{% url 'homepage:profile' %}" class="dropdown-item"><i class='bx bx-user'></i> My Profile</a>
-            <a href="{% url 'homepage:settings' %}" class="dropdown-item"><i class='bx bx-slider-alt'></i> Preferences</a>
-            <div class="dropdown-divider"></div>
-            <a href="{% url 'authentication:logout' %}" class="dropdown-item" style="color: #e07a5f;"><i class='bx bx-log-out'></i> Logout</a>
-          </div>
-        </div>
-      </div>
-      </div>
-
-      <div class="greeting-area" style="display: flex; gap: 20px; align-items: center; margin-top: 24px;">
-        {% if request.resolver_match.url_name != 'mainpage' %}
-        <a href="{% url 'homepage:mainpage' %}" class="back-dashboard-link" title="Back to Dashboard" style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; color: #64748b; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-          <i class='bx bx-arrow-back' style="font-size: 18px; color: #10b981;"></i>
-          <span>Back to Dashboard</span>
-        </a>
-        <style>
-          .back-dashboard-link:hover {
-            background-color: #ffffff !important;
-            border-color: #10b981 !important;
-            color: #10b981 !important;
-            transform: translateX(-4px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15) !important;
-          }
-        </style>
-        {% endif %}
-        <div>
-          <h1 id="greeting-text" style="margin: 0;">{% block page_title %}Dashboard{% endblock %}</h1>
-          <span class="page-subtitle">{% block page_subtitle %}Manage and review your active modules.{% endblock %}</span>
         </div>
       </div>
     </header>
 
-    <div class="page-body">
+    <div class="page-container">
+      <div class="greeting-area">
+        {% if request.resolver_match.url_name != 'mainpage' %}
+        <a href="{% url 'homepage:mainpage' %}" class="btn-back">
+          <i class='bx bx-chevron-left'></i>
+          <span>Back to Home</span>
+        </a>
+        {% endif %}
+        <div class="greeting-content">
+          <h1 id="greeting-text">{% block page_title %}Dashboard{% endblock %}</h1>
+          <span class="page-subtitle">{% block page_subtitle %}Manage your active modules and insights.{% endblock %}</span>
+        </div>
+      </div>
+
+      <div class="page-body">
       {% if messages %}
         <div class="messages-container" style="max-width: 100%; margin-bottom: 25px;">
           {% for message in messages %}
-            <div class="alert shadow-sm" style="padding: 16px 24px; border-radius: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14.5px; border-left: 6px solid; {% if message.tags == 'error' %}background: #fffafa; color: #e11d48; border-color: #fb7185; border-left-color: #e11d48;{% elif message.tags == 'success' %}background: #f0fdf4; color: #166534; border-color: #bbf7d0; border-left-color: #166534;{% else %}background: #f8fafc; color: #475569; border-color: #e2e8f0; border-left-color: #475569;{% endif %}">
+            <div class="alert shadow-sm {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}" style="padding: 16px 24px; border-radius: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14.5px; border-left: 6px solid;">
               <i class='bx {% if message.tags == "error" %}bx-error-circle{% elif message.tags == "success" %}bx-check-circle{% else %}bx-info-circle{% endif %}' style="font-size: 20px;"></i>
               {{ message }}
             </div>
@@ -501,12 +564,13 @@
         </div>
       {% endif %}
       {% block content %}{% endblock %}
-    </div>
+    </div> <!-- Close page-body -->
 
     <footer class="footer">
       &copy; 2026 Farmer Management System. Flourish with Earth.
     </footer>
-  </main>
+  </div> <!-- Close page-container -->
+</main>
 
   <script>
     const sidebar = document.getElementById("sidebar");
@@ -565,21 +629,28 @@
     // Static mapping of modules for client-side search
     const modules = [
       { name: "Dashboard", url: "{% url 'homepage:mainpage' %}", icon: "bx-grid-alt" },
-      {% if request.user.is_superuser or request.user.is_staff %}
-      { name: "Employees", url: "{% url 'homepage:show-employees' %}", icon: "bx-group" },
-      { name: "Add Employee", url: "{% url 'homepage:add-employees' %}", icon: "bx-plus" },
-      { name: "Reports", url: "{% url 'homepage:reports-dashboard' %}", icon: "bx-file-blank" },
-      { name: "Production", url: "{% url 'homepage:production-dashboard' %}", icon: "bx-package" },
-      { name: "Farm Analysis", url: "{% url 'homepage:analysis-dashboard' %}", icon: "bx-bar-chart-alt-2" },
-      { name: "Market Prices", url: "{% url 'homepage:market-prices' %}", icon: "bx-line-chart-down" },
-      { name: "Water Management", url: "{% url 'homepage:water-dashboard' %}", icon: "bx-water" },
-      { name: "Expense Analysis", url: "{% url 'homepage:show-farm-expenses' %}", icon: "bx-wallet" },
-      { name: "Crop Records", url: "{% url 'homepage:show-crops' %}", icon: "bxs-leaf" },
-      { name: "Machinery", url: "{% url 'homepage:show-machinery' %}", icon: "bxs-tractor" },
-      {% endif %}
-      { name: "Marketplace / Retail", url: "{% url 'homepage:retail-dashboard' %}", icon: "bx-store" },
-      { name: "Settings", url: "{% url 'homepage:settings' %}", icon: "bx-cog" },
+      { name: "Marketplace", url: "{% url 'homepage:retail-dashboard' %}", icon: "bx-store" },
+      { name: "Settings", url: "{% url 'homepage:settings' %}", icon: "bx-cog" }
     ];
+
+    // Conditionally add modules - JS friendly way to avoid lints
+    const isStaff = "{{ request.user.is_staff|yesno:'true,false' }}" === "true";
+    const isSuper = "{{ request.user.is_superuser|yesno:'true,false' }}" === "true";
+
+    if (isStaff || isSuper) {
+      modules.push(
+        { name: "Employees", url: "{% url 'homepage:show-employees' %}", icon: "bx-group" },
+        { name: "Add Employee", url: "{% url 'homepage:add-employees' %}", icon: "bx-plus" },
+        { name: "Reports", url: "{% url 'homepage:reports-dashboard' %}", icon: "bx-file-blank" },
+        { name: "Production", url: "{% url 'homepage:production-dashboard' %}", icon: "bx-package" },
+        { name: "Farm Analysis", url: "{% url 'homepage:analysis-dashboard' %}", icon: "bx-bar-chart-alt-2" },
+        { name: "Market Prices", url: "{% url 'homepage:market-prices' %}", icon: "bx-line-chart-down" },
+        { name: "Water Management", url: "{% url 'homepage:water-dashboard' %}", icon: "bx-water" },
+        { name: "Expense Analysis", url: "{% url 'homepage:show-farm-expenses' %}", icon: "bx-wallet" },
+        { name: "Crop Records", url: "{% url 'homepage:show-crops' %}", icon: "bxs-leaf" },
+        { name: "Machinery", url: "{% url 'homepage:show-machinery' %}", icon: "bxs-tractor" }
+      );
+    }
 
     if (searchInput && searchResults) {
       searchInput.addEventListener('input', function() {
@@ -604,7 +675,7 @@
 
       // Hide results when clicking outside
       document.addEventListener('click', function(e) {
-        if (!e.target.closest('.header-search')) {
+        if (!e.target.closest('.search-pill-container')) {
           searchResults.classList.remove('active');
         }
       });
@@ -612,56 +683,83 @@
 
     // Live Weather Widget Logic
     const weatherWidget = document.getElementById('live-weather-widget');
-    if (weatherWidget && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          fetch(`/api/weather/?lat=${lat}&lon=${lon}`)
-            .then(res => res.json())
-            .then(data => {
-              if(data.success && data.weather) {
-                weatherWidget.style.display = 'flex';
-                document.getElementById('weather-city').innerText = data.weather.city;
-                document.getElementById('weather-temp').innerText = `${data.weather.temperature}°C`;
-                
-                const statusText = document.getElementById('weather-status-text');
-                const descText = document.getElementById('weather-desc');
-                const alertBox = document.getElementById('climate-alert-box');
-                const icon = weatherWidget.querySelector('i');
-                const iconBg = document.getElementById('weather-icon-bg');
-                const iconInMenu = iconBg.querySelector('i');
+    if (weatherWidget) {
+      const updateWeather = (lat, lon) => {
+        const url = lat && lon ? `/api/weather/?lat=${lat}&lon=${lon}` : '/api/weather/';
+        fetch(url)
+          .then(res => res.json())
+          .then(data => {
+            if(data.success && data.weather) {
+              const weather = data.weather;
+              weatherWidget.style.display = 'flex';
+              const dot = document.getElementById('weather-live-dot');
+              if(dot) dot.style.display = 'block';
+              
+              const tempEl = document.getElementById('weather-temp');
+              const cityEl = document.getElementById('weather-city');
+              if (tempEl) tempEl.innerText = `${weather.temperature}°C`;
+              if (cityEl) cityEl.innerText = weather.city;
+              
+              const statusText = document.getElementById('weather-status-text');
+              const descText = document.getElementById('weather-desc');
+              const alertBox = document.getElementById('climate-alert-box');
+              const icon = weatherWidget.querySelector('i');
+              const iconBg = document.getElementById('weather-icon-bg');
+              const iconInMenu = iconBg ? iconBg.querySelector('i') : null;
 
-                statusText.innerText = `Condition: ${data.weather.temperature}°C`;
-                descText.innerHTML = `<i class='bx bx-wind'></i> ${data.weather.wind_speed}km/h | <i class='bx bx-droplet'></i> ${data.weather.humidity}%`;
+              if (statusText) statusText.innerText = `Condition: ${weather.temperature}°C`;
+              if (descText) descText.innerHTML = `<i class='bx bx-wind'></i> ${weather.wind_speed}km/h | <i class='bx bx-droplet'></i> ${weather.humidity}%`;
 
-                let rainfall = parseFloat(data.weather.rainfall) || 0;
-                if(rainfall > 0) {
-                    icon.className = 'bx bx-cloud-drizzle';
-                    iconInMenu.className = 'bx bx-cloud-drizzle';
-                    alertBox.style.display = 'block';
-                    alertBox.innerHTML = `<i class='bx bx-cloud-rain'></i> RAIN ALERT: ${rainfall}mm expected.`;
-                    iconBg.style.background = 'rgba(59, 130, 246, 0.1)';
-                    iconBg.style.color = '#3b82f6';
-                } else if(parseFloat(data.weather.temperature) > 30) {
-                    icon.className = 'bx bx-sun';
-                    iconInMenu.className = 'bx bx-sun';
-                    iconBg.style.background = 'rgba(234, 179, 8, 0.1)';
-                    iconBg.style.color = '#eab308';
-                } else {
-                    icon.className = 'bx bx-cloud';
-                    iconInMenu.className = 'bx bx-cloud';
-                }
+              let rainfall = parseFloat(weather.rainfall) || 0;
+              if(rainfall > 0) {
+                  if (icon) icon.className = 'bx bx-cloud-drizzle';
+                  if (iconInMenu) iconInMenu.className = 'bx bx-cloud-drizzle';
+                  if (alertBox) {
+                      alertBox.classList.add('d-block');
+                      alertBox.innerHTML = `<i class='bx bx-cloud-rain'></i> RAIN ALERT: ${rainfall}mm expected.`;
+                  }
+                  if (iconBg) {
+                      iconBg.style.background = 'rgba(59, 130, 246, 0.1)';
+                      iconBg.style.color = '#3b82f6';
+                  }
+              } else if(parseFloat(weather.temperature) > 30) {
+                  if (icon) icon.className = 'bx bx-sun';
+                  if (iconInMenu) iconInMenu.className = 'bx bx-sun';
+                  if (iconBg) {
+                      iconBg.style.background = 'rgba(234, 179, 8, 0.1)';
+                      iconBg.style.color = '#eab308';
+                  }
+              } else {
+                  if (icon) icon.className = 'bx bx-cloud';
+                  if (iconInMenu) iconInMenu.className = 'bx bx-cloud';
               }
-            })
-            .catch(() => {
-              console.log("Weather API connection failed");
-            });
-        },
-        (error) => {
-          console.log("Geolocation failed");
+            }
+          })
+          .catch(() => console.log("Weather API connection failed"));
+      };
+
+      // Initial load
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => updateWeather(pos.coords.latitude, pos.coords.longitude),
+          () => updateWeather(),
+          { enableHighAccuracy: true, timeout: 5000 }
+        );
+      } else {
+        updateWeather();
+      }
+
+      // Real-time refresh every 10 minutes
+      setInterval(() => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => updateWeather(pos.coords.latitude, pos.coords.longitude),
+            () => updateWeather()
+          );
+        } else {
+          updateWeather();
         }
-      );
+      }, 600000);
     }
   </script>
 </body>

@@ -4,6 +4,8 @@ from homepage.models import (
     Retail_Crop_Sales, Retail_Egg_Sales, Retail_Milk_Sales, 
     Retail_Machinery_Renting
 )
+from homepage.utils.weather_api import get_dashboard_weather
+
 
 def global_contact_info(request):
     contact = ContactDetail.objects.first()
@@ -102,3 +104,12 @@ def global_notifications(request):
         'notifications': notifications[:10], # Show up to 10 recent notifications
         'notif_count': notif_count
     }
+
+def global_weather(request):
+    """Provides consistent weather data for the header."""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0].strip()
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return {'weather_data': get_dashboard_weather(ip_address=ip)}

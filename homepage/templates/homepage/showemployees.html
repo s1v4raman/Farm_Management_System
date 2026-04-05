@@ -10,10 +10,9 @@
         </h2>
     </div>
     <div class="flex items-center gap-4">
-        <div class="relative flex items-center w-full max-w-[320px] group">
-            <i class='bx bx-search absolute left-4 text-slate-400 text-xl pointer-events-none group-focus-within:text-green-600 transition-colors z-10'></i>
-            <input type="text" id="table-search" placeholder="Search employees..." 
-                   class="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:border-slate-300">
+        <div class="search-pill-container" style="max-width: 320px; margin: 0;">
+            <i class='bx bx-search'></i>
+            <input type="text" id="table-search" class="search-pill-input" placeholder="Search employees...">
         </div>
         <a href="{% url 'homepage:add-employees' %}" class="bg-green-600 hover:bg-green-700 text-white font-extrabold px-6 py-3 rounded-xl shadow-lg shadow-green-100 transition-all flex items-center gap-2 whitespace-nowrap">
             <i class='bx bx-plus text-xl'></i> Add Employee

@@ -6,166 +6,275 @@
 
 {% block content %}
 <style>
-    .weather-card {
-        background: var(--surface);
-        border-radius: 20px;
-        padding: 28px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-        transition: transform 0.3s ease, border-color 0.3s;
-        border: 1px solid var(--border-color);
-        border-top: 5px solid var(--primary);
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
     }
-    .weather-card:hover {
-        transform: translateY(-5px);
-        border-color: var(--primary-light);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    .text-gradient {
+        background: linear-gradient(135deg, #00cc00 0%, #006600 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
-    .city-name {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--primary);
-        margin-bottom: 15px;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 10px;
-    }
-    .weather-detail {
-        display: flex;
-        align-items: center;
-        margin-bottom: 12px;
-        font-size: 1.1rem;
-        color: var(--text-main);
-        font-weight: 500;
-    }
-    .weather-detail i {
-        font-size: 1.5rem;
-        margin-right: 15px;
-        color: var(--primary);
-        width: 30px;
-        text-align: center;
-    }
-    .temp-val { font-weight: 800; color: #d84315; }
-    .hum-val { font-weight: 800; color: #1976d2; }
-    .rain-val { font-weight: 800; color: #0288d1; }
-    .wind-val { font-weight: 800; color: #607d8b; }
-    .update-time {
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        margin-top: 20px;
-        text-align: right;
-        font-style: italic;
-    }
-    .search-another {
-        display: inline-flex;
-        align-items: center;
-        padding: 10px 20px;
-        background-color: var(--primary);
+    .weather-trend-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         color: white;
-        border-radius: 12px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: 0.3s;
-        margin-bottom: 20px;
-        font-size: 14px;
-        border: none;
     }
-    .search-another:hover {
-        background-color: var(--secondary);
+    .search-focus:focus-within {
         transform: translateY(-2px);
-        color: white;
+        box-shadow: 0 12px 40px rgba(0, 204, 0, 0.1);
     }
-    .select-region-card {
-        max-width: 600px;
-        margin: 40px auto;
-        background: var(--surface);
-        border-radius: 20px;
-        padding: 40px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-    }
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 </style>
 
-<div class="container py-4">
-    {% if not show_results %}
-    <div class="select-region-card">
-        <h2 style="color: var(--primary); margin-bottom: 30px; font-weight: 800; text-align: center;"><i class='bx bx-search-alt opacity-70'></i> Select Region</h2>
-        <form method="GET" action="{% url 'homepage:daily-climate' %}">
-            <div class="mb-4">
-                <label for="country" class="form-label fw-bold text-secondary" style="font-size: 13.5px; border-left: 3px solid var(--primary); padding-left: 8px;">1. Select Country</label>
-                <select class="form-select form-select-lg" id="country" name="country" onchange="this.form.submit()" style="border-radius: 12px; font-size: 15px;">
-                    <option value="">-- Choose Country --</option>
-                    <option value="India" {% if country == 'India' %}selected{% endif %}>India</option>
-                </select>
-            </div>
-            
-            {% if country == 'India' %}
-            <div class="mb-4">
-                <label for="state" class="form-label fw-bold text-secondary" style="font-size: 13.5px; border-left: 3px solid var(--primary); padding-left: 8px;">2. Select State</label>
-                <select class="form-select form-select-lg" id="state" name="state" onchange="this.form.submit()" style="border-radius: 12px; font-size: 15px;">
-                    <option value="">-- Choose State --</option>
-                    {% for s in states_list %}
-                    <option value="{{ s }}" {% if state == s %}selected{% endif %}>{{ s }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            {% endif %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
 
-            {% if state and state != '' %}
-            <div class="mb-4">
-                <label for="district" class="form-label fw-bold text-secondary" style="font-size: 13.5px; border-left: 3px solid var(--primary); padding-left: 8px;">3. Select District</label>
-                <select class="form-select form-select-lg" id="district" name="district" onchange="this.form.submit()" style="border-radius: 12px; font-size: 15px;">
-                    <option value="">-- Choose District --</option>
-                    {% for d in districts_list %}
-                    <option value="{{ d }}" {% if district == d %}selected{% endif %}>{{ d }}</option>
-                    {% endfor %}
-                </select>
+    <!-- Dropdown Selection Form (Full Intelligence Upgrade) -->
+    <div class="mb-10">
+        <div class="max-w-5xl mx-auto glass-card p-10 rounded-[2.5rem] border-slate-200 shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-green-600"></div>
+            
+            <h2 class="text-3xl font-black text-slate-900 mb-10 text-center flex items-center justify-center gap-4">
+                <div class="p-3 bg-green-100 rounded-2xl text-green-600 shadow-inner">
+                    <i class='bx bx-search-alt text-4xl'></i>
+                </div>
+                <div>
+                   <span class="text-gradient block">Daily Climate Tracker</span>
+                   <span class="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] block mt-1">Select Any Region for Global Insights</span>
+                </div>
+            </h2>
+            
+            <form method="GET" action="{% url 'homepage:daily-climate' %}" class="space-y-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Step 1: Country -->
+                    <div class="space-y-4">
+                        <label for="country" class="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest border-l-4 border-green-500 pl-4">
+                            1. Select Country
+                        </label>
+                        <div class="relative group">
+                            <select id="country" name="country" onchange="this.form.submit()" 
+                                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-slate-900 font-bold focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all appearance-none cursor-pointer group-hover:border-slate-200">
+                                <option value="">-- Choose Country --</option>
+                                {% for c in WORLD_REGIONS.keys %}
+                                <option value="{{ c }}" {% if country == c %}selected{% endif %}>{{ c }}</option>
+                                {% endfor %}
+                            </select>
+                            <i class='bx bx-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-2xl text-slate-300 pointer-events-none group-hover:text-green-500 transition-colors'></i>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: State -->
+                    <div class="space-y-4 transition-all duration-300 {% if not country %}opacity-30 pointer-events-none grayscale{% endif %}">
+                        <label for="state" class="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest border-l-4 border-green-500 pl-4">
+                            2. Select State/Region
+                        </label>
+                        <div class="relative group">
+                            <select id="state" name="state" onchange="this.form.submit()" 
+                                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-slate-900 font-bold focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all appearance-none cursor-pointer group-hover:border-slate-200">
+                                <option value="">-- Choose State --</option>
+                                {% if country %}
+                                    {% for s in states_list %}
+                                    <option value="{{ s }}" {% if state == s %}selected{% endif %}>{{ s }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            <i class='bx bx-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-2xl text-slate-300 pointer-events-none group-hover:text-green-500 transition-colors'></i>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: District -->
+                    <div class="space-y-4 transition-all duration-300 {% if not state or state == '' %}opacity-30 pointer-events-none grayscale{% endif %}">
+                        <label for="district" class="flex items-center gap-3 text-sm font-black text-slate-400 uppercase tracking-widest border-l-4 border-green-500 pl-4">
+                            3. Select District/City
+                        </label>
+                        <div class="relative group">
+                            <select id="district" name="district" onchange="this.form.submit()" 
+                                    class="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-slate-900 font-bold focus:ring-4 focus:ring-green-500/10 focus:border-green-500 outline-none transition-all appearance-none cursor-pointer group-hover:border-slate-200">
+                                <option value="">-- Choose City --</option>
+                                {% if districts_list %}
+                                    {% for d in districts_list %}
+                                    <option value="{{ d }}" {% if district == d %}selected{% endif %}>{{ d }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                            <i class='bx bx-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-2xl text-slate-300 pointer-events-none group-hover:text-green-500 transition-colors'></i>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if show_results %}
+    
+    <!-- Results Header -->
+    <div class="mb-8 flex flex-col md:flex-row justify-between items-end gap-4 overflow-hidden">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <span class="px-3 py-1 bg-green-500 text-white text-[10px] font-black rounded-full uppercase tracking-tighter">Real-time Intelligence</span>
+                <span class="text-sm font-bold text-slate-400 uppercase tracking-widest">{{ country }} • {{ state }}</span>
             </div>
-            {% endif %}
-        </form>
+            <h1 class="text-5xl font-black text-slate-900 tracking-tightest">{{ district }}</h1>
+        </div>
+        <div class="text-right">
+            <div class="text-3xl font-black text-green-600 leading-none mb-1">{{ weather_data.temperature }}°C</div>
+            <div class="text-sm font-bold text-slate-500 uppercase tracking-widest">Outdoor Temperature</div>
+        </div>
     </div>
-    {% else %}
-    
-    <div class="text-center mb-5">
-        <a href="{% url 'homepage:daily-climate' %}?country={{country}}&state={{state}}" class="search-another"><i class='bx bx-search mr-2'></i> Search Another District</a>
-        <h3 style="color: var(--text-main); font-weight: 800; margin-top: 10px;">Climate Overview for {{ district }}, {{ state }}, {{ country }}</h3>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+        <!-- Main Stats Card (Today's Dynamics) -->
+        <div class="lg:col-span-1">
+            <div class="glass-card p-10 rounded-[2.5rem] border-slate-200 h-full relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mt-6 -mr-6 w-40 h-40 bg-green-500/10 rounded-full blur-3xl"></div>
+                <h3 class="text-2xl font-black text-slate-900 mb-10 border-b border-slate-100 pb-6 flex items-center justify-between">
+                    Current Dynamics
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Updated: {{ weather_data.time }}</span>
+                </h3>
+                
+                <div class="space-y-8">
+                    <div class="flex items-center gap-6">
+                        <div class="p-4 bg-rose-50 text-rose-500 rounded-3xl shadow-sm"><i class='bx bxs-thermometer text-3xl'></i></div>
+                        <div>
+                            <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Temperature</div>
+                            <div class="text-2xl font-black text-slate-900">{{ weather_data.temperature }}°C</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <div class="p-4 bg-sky-50 text-sky-500 rounded-3xl shadow-sm"><i class='bx bx-water text-3xl'></i></div>
+                        <div>
+                            <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Humidity</div>
+                            <div class="text-2xl font-black text-slate-900">{{ weather_data.humidity }}%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <div class="p-4 bg-blue-50 text-blue-500 rounded-3xl shadow-sm"><i class='bx bx-cloud-light-rain text-3xl'></i></div>
+                        <div>
+                            <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Rainfall</div>
+                            <div class="text-2xl font-black text-slate-900">{{ weather_data.rainfall }}mm</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <div class="p-4 bg-teal-50 text-teal-500 rounded-3xl shadow-sm"><i class='bx bx-wind text-3xl'></i></div>
+                        <div>
+                            <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Wind Flow</div>
+                            <div class="text-2xl font-black text-slate-900">{{ weather_data.wind_speed }}km/h</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temperature Trend Chart -->
+        <div class="lg:col-span-2">
+            <div class="weather-trend-card p-10 rounded-[2.5rem] shadow-xl h-full">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-2xl font-black">7-Day Temperature Trend</h3>
+                    <div class="flex gap-4 items-center">
+                        <span class="w-4 h-4 rounded-full bg-green-500"></span>
+                        <span class="text-xs uppercase font-black tracking-widest opacity-60">Max Temp Curve</span>
+                    </div>
+                </div>
+                <div class="relative h-80">
+                    <canvas id="tempTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <div class="row justify-content-center">
-        {% for data in weather_data %}
-        <div class="col-lg-4 col-md-6">
-            <div class="weather-card">
-                <div class="city-name"><i class='bx bx-map'></i> {{ data.city }}</div>
+
+    <!-- Weekly Grid -->
+    <h3 class="text-sm font-black text-slate-400 uppercase tracking-[0.3em] mb-10 pl-4 border-l-4 border-green-500">Agricultural Multi-Day Forecast</h3>
+    <div class="flex overflow-x-auto gap-8 pb-8 custom-scrollbar">
+        {% for data in climate_data %}
+        <div class="min-w-[280px] glass-card p-8 rounded-[2.5rem] border-slate-200 hover:border-green-500 transition-all group">
+            <div class="text-center">
+                <div class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">{{ data.date }}</div>
+                <div class="text-2xl font-black text-slate-900 mb-6">{{ data.weekday }}</div>
                 
-                {% if data.error %}
-                <div class="alert alert-warning" style="border-radius: 12px; font-size: 14px;">
-                    <i class='bx bx-error-circle'></i> Currently unable to fetch real-time data for this region.
+                <div class="mb-8 relative inline-block">
+                    <div class="absolute inset-0 bg-green-500/10 blur-xl rounded-full scale-125"></div>
+                    <i class='bx {% if data.rainfall > 0 %}bx-cloud-drizzle text-blue-500{% elif data.temp_max > 30 %}bx-sun text-amber-500{% else %}bx-cloud text-green-500{% endif %} text-6xl relative z-10'></i>
                 </div>
-                {% else %}
-                <div class="weather-detail">
-                    <i class='bx bxs-thermometer'></i> 
-                    <span>Temperature: <span class="temp-val">{{ data.temperature }} °C</span></span>
-                </div>
-                <div class="weather-detail">
-                    <i class='bx bx-water'></i> 
-                    <span>Humidity: <span class="hum-val">{{ data.humidity }} %</span></span>
-                </div>
-                <div class="weather-detail">
-                    <i class='bx bx-cloud-drizzle'></i> 
-                    <span>Rainfall: <span class="rain-val">{{ data.rainfall }} mm</span></span>
-                </div>
-                <div class="weather-detail">
-                    <i class='bx bx-wind'></i> 
-                    <span>Wind Speed: <span class="wind-val">{{ data.wind_speed }} km/h</span></span>
-                </div>
-                {% endif %}
                 
-                <div class="update-time">
-                    <i class='bx bx-time'></i> Last updated: {{ data.time }}
+                <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-6">
+                    <div>
+                        <div class="text-[11px] font-black text-slate-400 uppercase mb-1">High</div>
+                        <div class="text-xl font-black text-slate-900">{{ data.temp_max }}°</div>
+                    </div>
+                    <div>
+                        <div class="text-[11px] font-black text-slate-400 uppercase mb-1">Rain</div>
+                        <div class="text-xl font-black text-blue-600">{{ data.rainfall }}mm</div>
+                    </div>
+                </div>
+                <div class="mt-6 px-4 py-2 bg-slate-50 text-[10px] font-black text-slate-500 rounded-full uppercase tracking-widest">
+                   {{ data.day_type }} Conditions
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
+
+    {{ chart_labels|json_script:"chart-labels-data" }}
+    {{ chart_temps|json_script:"chart-temps-data" }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('tempTrendChart').getContext('2d');
+            const labels = JSON.parse(document.getElementById('chart-labels-data').textContent);
+            const tempData = JSON.parse(document.getElementById('chart-temps-data').textContent);
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Max Temp (°C)',
+                        data: tempData,
+                        borderColor: '#00cc00',
+                        backgroundColor: 'rgba(0, 204, 0, 0.1)',
+                        borderWidth: 5,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#00cc00',
+                        pointBorderWidth: 3,
+                        pointRadius: 6,
+                        pointHoverRadius: 10,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1e293b',
+                            titleFont: { weight: '800', size: 14 },
+                            bodyFont: { weight: '600', size: 14 },
+                            padding: 16,
+                            cornerRadius: 16
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.6)', font: { weight: '600', size: 12 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: 'rgba(255, 255, 255, 0.6)', font: { weight: '600', size: 12 } }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
     {% endif %}
+
 </div>
+
 {% endblock %}

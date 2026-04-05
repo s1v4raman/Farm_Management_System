@@ -150,23 +150,39 @@ def get_realtime_weather():
     """Returns empty as we now require a specific state and district."""
     return []
 
-def get_dashboard_weather():
+def get_dashboard_weather(ip_address=None):
     """Fetches real-time weather based on public IP location, with fallback to Pune."""
+    # Try ipapi.co first
     try:
-        # Get location from public IP
-        ip_response = requests.get('https://ipapi.co/json/', timeout=5)
+        url = 'https://ipapi.co/json/'
+        if ip_address and ip_address != '127.0.0.1':
+            url = f'https://ipapi.co/{ip_address}/json/'
+            
+        ip_response = requests.get(url, timeout=3)
         if ip_response.status_code == 200:
             ip_data = ip_response.json()
-            lat = ip_data.get('latitude')
-            lon = ip_data.get('longitude')
+            lat, lon = ip_data.get('latitude'), ip_data.get('longitude')
             city = ip_data.get('city', 'Unknown')
-            
             if lat is not None and lon is not None:
                 weather = _fetch_weather_from_coords(lat, lon, city)
-                if weather:
-                    return weather
-    except Exception as e:
-        print(f"Error fetching IP location for dashboard weather: {e}")
+                if weather: return weather
+    except Exception: pass
+
+    # Backup: Try ipwhois.app
+    try:
+        url = 'https://ipwho.is/'
+        if ip_address and ip_address != '127.0.0.1':
+            url = f'https://ipwho.is/{ip_address}'
+            
+        ip_response = requests.get(url, timeout=3)
+        if ip_response.status_code == 200:
+            ip_data = ip_response.json()
+            if ip_data.get('success'):
+                lat, lon = ip_data.get('latitude'), ip_data.get('longitude')
+                city = ip_data.get('city', 'Unknown')
+                weather = _fetch_weather_from_coords(lat, lon, city)
+                if weather: return weather
+    except Exception: pass
         
     # Using Pune as a fallback agricultural proxy if IP location fails or isn't available
     weather_data = get_realtime_weather_for_district("India", "Maharashtra", "Pune")
@@ -184,20 +200,20 @@ def _fetch_weather_from_coords(lat, lon, city):
             f"&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m"
             f"&timezone={tz_encoded}"
         )
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, timeout=3)
         if response.status_code == 200:
             data = response.json()
             current = data.get("current", {})
             return {
                 "city": city,
-                "temperature": current.get("temperature_2m", "--"),
-                "humidity": current.get("relative_humidity_2m", "--"),
-                "rainfall": current.get("precipitation", "--"),
-                "wind_speed": current.get("wind_speed_10m", "--"),
+                "temperature": current.get("temperature_2m", 0),
+                "humidity": current.get("relative_humidity_2m", 0),
+                "rainfall": current.get("precipitation", 0),
+                "wind_speed": current.get("wind_speed_10m", 0),
                 "time": current.get("time", "").replace("T", " ")
             }
-    except Exception as e:
-        print(f"Error fetching weather for coords {lat},{lon}: {e}")
+    except Exception:
+        pass
     return None
 
 def get_realtime_weather_for_district(country, state, district):
@@ -215,20 +231,20 @@ def get_realtime_weather_for_district(country, state, district):
             f"&timezone={tz_encoded}"
         )
         
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, timeout=3)
         if response.status_code == 200:
             data = response.json()
             current = data.get("current", {})
             return [{
                 "city": district,
-                "temperature": current.get("temperature_2m", "--"),
-                "humidity": current.get("relative_humidity_2m", "--"),
-                "rainfall": current.get("precipitation", "--"),
-                "wind_speed": current.get("wind_speed_10m", "--"),
+                "temperature": current.get("temperature_2m", 0),
+                "humidity": current.get("relative_humidity_2m", 0),
+                "rainfall": current.get("precipitation", 0),
+                "wind_speed": current.get("wind_speed_10m", 0),
                 "time": current.get("time", "").replace("T", " ")
             }]
-    except Exception as e:
-        print(f"Error fetching weather for {district}: {e}")
+    except Exception:
+        pass
     return [_get_fallback_data(district)]
 
 def get_7_day_weather_forecast(country, state, district):

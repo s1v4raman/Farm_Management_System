@@ -3,11 +3,14 @@
 {% block page_title %}Egg Production Today{% endblock %}
 {% block content %}
 <div class="table-container">
-  <div style="margin-bottom: 20px;">
-    <a href="{% url 'homepage:production-dashboard' %}" class="back-link" style="display: inline-flex; align-items: center; gap: 6px; color: #64748b; text-decoration: none; font-weight: 500;">
-        <i class='bx bx-arrow-back'></i> Back to Production
-    </a>
-  </div>
+    <div class="flex flex-col mb-6">
+        <a href="{% url 'homepage:production-dashboard' %}" class="btn-back">
+            <i class='bx bx-chevron-left'></i> Back to Production
+        </a>
+    </div>
+    <div class="module-header">
+        <h1>Egg Production - Today <i class='bx bxs-egg' style="color: #00cc00;"></i></h1>
+    </div>
   <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <h2><i class='bx bx-cookie'></i> Egg Production — Today ({{ selected_year }}-{{ selected_month }}-{{ selected_day }})</h2>
     <div>

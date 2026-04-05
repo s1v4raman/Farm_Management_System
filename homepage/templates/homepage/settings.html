@@ -84,8 +84,12 @@
                 
             </div>
             
-            <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end">
-                <a href="{% url 'homepage:mainpage' %}" class="px-6 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors mr-3">Back to Home</a>
+            <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="{% url 'homepage:mainpage' %}" class="btn-back">
+                        <i class='bx bx-chevron-left'></i> Back to Home
+                    </a>
+                </div>
                 <button onclick="alert('Settings saved successfully! (Demo)')" class="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 shadow-sm transition-colors">Save Changes</button>
             </div>
         </div>

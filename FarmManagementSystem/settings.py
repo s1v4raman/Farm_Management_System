@@ -69,6 +69,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "homepage.context_processors.global_notifications",
                 "homepage.context_processors.global_contact_info",
+                "homepage.context_processors.global_weather",
             ],
             "libraries": {
                 "custom_filters": "homepage.templatetags.custom_filters",

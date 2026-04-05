@@ -3,12 +3,10 @@
 {% block page_title %}{% if request.user.is_superuser or request.user.is_staff %}Add Retail Machinery Rental{% else %}Rent Machinery{% endif %}{% endblock %}
 {% block page_subtitle %}{% if request.user.is_superuser or request.user.is_staff %}Record a new machinery rental.{% else %}Complete your machinery rental securely.{% endif %}{% endblock %}
 {% block content %}
-<div style="margin-bottom: 20px;">
-    <a href="{% url 'homepage:show-retail-machinery-renting' %}" style="display: inline-flex; align-items: center; font-size: 14px; font-weight: 500; color: #3b82f6; text-decoration: none; transition: 0.3s;">
-        <i class='bx bx-left-arrow-alt' style="margin-right: 4px; font-size: 18px;"></i>
-        Back to Machinery Records
-    </a>
-</div>
+<a href="{% url 'homepage:show-retail-machinery-renting' %}" class="btn-back">
+    <i class='bx bx-chevron-left'></i>
+    Back to Machinery Records
+</a>
 <div class="form-container">
   <h2>{% if request.user.is_superuser or request.user.is_staff %}<i class='bx bx-plus' style="color: #3b82f6;"></i> Add Retail Machinery Rental{% else %}<i class='bx bx-cart-add' style="color: #3b82f6;"></i> Rent Machinery{% endif %}</h2>
   <form method="POST" class="add-form" enctype="multipart/form-data">

@@ -5,25 +5,31 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto py-4">
-    <div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-        <div>
-            <a href="{% url 'homepage:retail-dashboard' %}" class="inline-flex items-center text-sm font-extrabold text-slate-500 hover:text-yellow-600 transition-colors mb-2">
-                <i class='bx bx-left-arrow-alt mr-1 text-xl'></i>
+    <div class="mb-10 grid grid-cols-1 md:grid-cols-3 items-center gap-6">
+        <div class="flex flex-col">
+            <a href="{% url 'homepage:retail-dashboard' %}" class="btn-back">
+                <i class='bx bx-chevron-left'></i>
                 Back to Retail Market
             </a>
-            <h1 class="text-3xl font-black text-gray-900 flex items-center gap-3 tracking-tight">
-                <i class='bx bx-store-alt text-yellow-600 text-4xl'></i>
-                {% if request.user.is_superuser or request.user.is_staff %}Egg Inventory & Sales{% else %}Available Eggs{% endif %}
-            </h1>
-        </div>
-        <div class="flex items-center gap-4">
-            <div class="relative flex items-center w-full max-w-[320px] group">
-                <i class='bx bx-search absolute left-4 text-slate-400 text-xl pointer-events-none group-focus-within:text-yellow-600 transition-colors z-10'></i>
-                <input type="text" id="product-search" placeholder="Search eggs..." 
-                       class="w-full bg-white border border-slate-200 rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-yellow-500/10 focus:border-yellow-500 outline-none transition-all placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:border-slate-300">
+            <div class="module-header">
+                <h1>
+                    <i class='bx bxs-egg' style="color: #00cc00; margin-right: 8px;"></i>
+                    {% if request.user.is_superuser or request.user.is_staff %}Poultry Inventory{% else %}Egg Market{% endif %}
+                </h1>
+                <span class="module-subtitle">Fresh farm eggs and poultry product listings.</span>
             </div>
+        </div>
+        
+        <div class="flex justify-center items-center w-full">
+            <div class="search-pill-container">
+                <i class='bx bx-search'></i>
+                <input type="text" id="product-search" class="search-pill-input" placeholder="Search poultry products...">
+            </div>
+        </div>
+
+        <div class="flex justify-end items-center gap-4">
             {% if request.user.is_superuser or request.user.is_staff %}
-            <a href="{% url 'homepage:add-retail-egg-sale' %}" class="btn btn-primary">
+            <a href="{% url 'homepage:add-retail-egg-sale' %}" class="btn btn-primary whitespace-nowrap px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95">
                 <i class='bx bx-plus'></i> Add Listing
             </a>
             {% endif %}
@@ -33,7 +39,10 @@
     <!-- Products Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="product-grid">
         {% for sale in sales %}
-        <div class="product-card rounded-3xl border border-slate-100 overflow-hidden transition-all duration-500 flex flex-col bg-white hover:shadow-2xl hover:border-yellow-400 group" data-name="Farm Fresh Eggs">
+        <div class="product-card rounded-3xl border border-slate-100 overflow-hidden transition-all duration-500 flex flex-col bg-white hover:shadow-2xl hover:border-yellow-400 group" 
+             data-name="Farm Fresh Eggs" 
+             data-price="{{ sale.Price_Per_Dozen }}" 
+             data-qty="{{ sale.Quantity_Dozens }}">
             <!-- Product Image Placeholder -->
             <div class="h-48 flex items-center justify-center relative bg-slate-50 overflow-hidden">
                 <img src="{% if sale.Product_Image %}{{ sale.Product_Image.url }}{% else %}{% static 'images/bg_eggs.png' %}{% endif %}" alt="Farm Fresh Eggs" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
@@ -150,7 +159,11 @@
         
         cards.forEach(card => {
             const name = card.getAttribute('data-name').toLowerCase();
-            if (name.includes(query)) {
+            const price = card.getAttribute('data-price').toLowerCase();
+            const qty = card.getAttribute('data-qty').toLowerCase();
+            const cardText = card.innerText.toLowerCase();
+            
+            if (name.includes(query) || price.includes(query) || qty.includes(query) || cardText.includes(query)) {
                 card.style.display = 'flex';
             } else {
                 card.style.display = 'none';

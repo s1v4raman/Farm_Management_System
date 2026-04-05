@@ -331,9 +331,9 @@ class Retail_Machinery_Renting(models.Model):
 # Retail Livestock Sales Model Removed
 
 class ContactDetail(models.Model):
-    phone = models.CharField(max_length=20, default="+91 91594 42229")
+    phone = models.CharField(max_length=20, default="+91 63809 20970")
     email = models.EmailField(default="support@agrimarket.com")
-    address = models.TextField(default="#42, Madurai Bypass Rd, Madurai, TN 625020")
+    address = models.TextField(default="Farmer HQ, Agri-Tech Park")
     
     class Meta:
         verbose_name = "Contact Detail"

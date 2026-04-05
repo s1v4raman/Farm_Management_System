@@ -182,20 +182,25 @@ def daily_climate(request):
     if d:
         w = get_7_day_weather_forecast(c or "India", s or "", d)
         if w:
-            # daily_climate template expects a list in 'weather_data'
-            # We take the 'current' weather and wrap it in a list
-            current = w.get('current')
-            if current:
-                current['city'] = w.get('resolved_location', {}).get('city', d)
+            # Prepare chart data (same logic as climate_analysis)
+            chart_labels = [day['weekday'][:3] for day in w['daily']]
+            chart_temps = [day['temp_max'] for day in w['daily']]
+            chart_rain = [day['rainfall'] for day in w['daily']]
             
             return render(request, 'homepage/daily_climate.html', {
-                'weather_data': [current] if current else [],
+                'weather_data': w.get('current'),
+                'climate_data': w['daily'], # full list for the grid
                 'country': c, 'state': s, 'district': d, 'show_results': True,
-                'states_list': states_list, 'districts_list': districts_list
+                'states_list': states_list, 'districts_list': districts_list,
+                'WORLD_REGIONS': WORLD_REGIONS,
+                'chart_labels': chart_labels,
+                'chart_temps': chart_temps,
+                'chart_rain': chart_rain
             })
     return render(request, 'homepage/daily_climate.html', {
         'country': c, 'state': s, 'district': d, 'show_results': False,
-        'states_list': states_list, 'districts_list': districts_list
+        'states_list': states_list, 'districts_list': districts_list,
+        'WORLD_REGIONS': WORLD_REGIONS
     })
 
 def api_weather(request):

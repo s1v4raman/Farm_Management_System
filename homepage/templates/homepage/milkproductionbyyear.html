@@ -5,7 +5,9 @@
 <div class="table-container">
   <div class="table-header">
     <h2><i class='bx bx-calendar-alt'></i> Yearly Milk Production Summary — {{ selected_year }}</h2>
-    <a href="{% url 'homepage:select-yearmonth' %}" class="btn" style="background: #64748b; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px;"><i class='bx bx-arrow-back'></i> Back</a>
+    <a href="{% url 'homepage:select-yearmonth' %}" class="btn-back">
+        <i class='bx bx-chevron-left'></i> Back
+    </a>
   </div>
   
   {% if monthly_data %}

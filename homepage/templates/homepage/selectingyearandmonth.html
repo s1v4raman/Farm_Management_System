@@ -26,12 +26,13 @@
   .header-area { margin-bottom: 30px; text-align: center; }
   .header-area h1 { font-size: 28px; color: #0f172a; display: flex; align-items: center; justify-content: center; gap: 10px; }
   .header-area p { color: #64748b; margin-top: 8px; }
+  .btn-back { display: inline-flex; align-items: center; gap: 6px; color: #64748b; text-decoration: none; font-weight: 500; margin-bottom: 20px; }
 </style>
 
 <div class="dash-wrapper" style="max-width: 1000px; margin: 0 auto; padding: 20px;">
-  <a href="{% url 'homepage:production-dashboard' %}" style="display: inline-flex; align-items: center; gap: 6px; color: #64748b; text-decoration: none; font-weight: 500; margin-bottom: 20px;">
-      <i class='bx bx-arrow-back'></i> Back to Production
-  </a>
+      <a href="{% url 'homepage:production-dashboard' %}" class="btn-back">
+          <i class='bx bx-chevron-left'></i> Back to Production
+      </a>
   <div class="header-area">
     <h1><i class='bx bx-cookie' style="color:#f59e0b;"></i> Egg Production Hub</h1>
     <p>Select the timeframe you want to view production records for.</p>

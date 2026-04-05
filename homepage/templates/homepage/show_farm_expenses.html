@@ -163,12 +163,16 @@
 </style>
 
 <div class="expense-dashboard">
-  <div class="expense-header">
-    <div class="header-left">
-      <h1>Farm Expense Analysis 💰</h1>
-      <p>Track your seed, fertilizer, and labor costs to calculate real profit.</p>
+  <a href="{% url 'homepage:mainpage' %}" class="btn-back">
+    <i class='bx bx-chevron-left'></i> Back to Dashboard
+  </a>
+
+  <div class="expense-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
+    <div class="module-header">
+      <h1>Farm Expense Analysis <i class='bx bx-money' style="color: #00cc00;"></i></h1>
+      <span class="module-subtitle">Track your seed, fertilizer, and labor costs to calculate real profit.</span>
     </div>
-    <a href="{% url 'homepage:add-farm-expense' %}" class="btn-primary">
+    <a href="{% url 'homepage:add-farm-expense' %}" class="btn btn-primary">
       <i class='bx bx-plus-circle'></i> Add Record
     </a>
   </div>
